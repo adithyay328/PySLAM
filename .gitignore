@@ -1,2 +1,5 @@
 # Ignore venvs
 **/.venv/**
+
+# Ignore pycaches
+**/__pycache__/**
