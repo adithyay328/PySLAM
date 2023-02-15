@@ -30,48 +30,35 @@ class SensorWrapper(abc.ABC):
            and stop capturing.
        
   """
-  def __init__(self, name : str, rawSensor : RawSensor,
-    captureEvent : multiprocessing.Event, stopEvent : multiprocessing.Event, captureQueue : multiprocessing.Queue):
+  def __init__(self, name : str, rawSensor : RawSensor):
     """
     :param name: A string name for this sensor
-    :param rawSensor: The raw sensor this wrapper wraps around.
-    :param captureEvent: A threading event that this sensor will wait on
-      before triggering a capture in the capture loop.
-    :param stopEvent: A threading event that allows capture manager to
-      signal this sensor to stop capturing.
-    :param captureQueue: A queue we use to log our Capture objects to the CaptureManager
+    :param rawSensor: The raw sensor this wrapper wraps around
 
     :return: Instantiated ImageSensor class.
     """
     # Setting all params passed in
-    self.__name = name
+    self.name = name
     self.rawSensor = rawSensor
-    self.__captureEvent = captureEvent
-    self.__stopEvent = stopEvent
-    self.__externalCaptureQueue = captureQueue
+
+    # These need to be set by the capture manager
+    self.controlQueue : multiprocessing.Queue = multiprocessing.Queue()
+    self.externalCaptureQueue : multiprocessing.Queue = multiprocessing.Queue()
     
-    self.__uid = generateUID()
+    self.uid = generateUID()
 
     ## The following lines deal with logic related to the capture state of the camera.
     # This variable indicates if the camera is currently "recording",
     # in which case we can easily pull a frame
-    self.__active = False
-    self.__inCaptureLoop = False
+    self.active = False
+    self.inCaptureLoop = False
     # This is a queue we use internally to allow other threads to get the most recent
     # capture from the camera without interfering with a capture loop, if there is one.
-    self.__internalCaptureQueue = multiprocessing.Queue()
+    self.internalCaptureQueue = multiprocessing.Queue()
     # This is a recurrent lock object that we use to allow one thread to take control
     # of the current capture state of the camera. This is mainly used in a) the capture
     # loop and b) the function to get a single image from the camera.
-    self.__captureLock = multiprocessing.RLock()
-  
-  @property
-  def name(self):
-    return self.__name
-  
-  @property
-  def uid(self):
-    return self.__uid
+    self.captureLock = multiprocessing.RLock()
   
   def __startCapture(self):
     """Sets active flag to true, acquires the capture lock, 
@@ -79,12 +66,12 @@ class SensorWrapper(abc.ABC):
 
     # Take ownership of the capture state of the camera; this will be released if we
     # error out, or when endCapture is called
-    self.__captureLock.acquire()
+    self.captureLock.acquire()
 
     if self.__active:
       # Log a warning and release lock
       logging.warning("Attempted to startCapture while camera is already capturing")
-      self.__captureLock.release()
+      self.captureLock.release()
     else:
       # Ready the sensor, and don't release the lock.
       self.rawSensor.activateSensor()
@@ -93,7 +80,7 @@ class SensorWrapper(abc.ABC):
   def __endCapture(self):
     """Sets active flag to false, clears the capture lock, 
     and stops openCV camera capture"""
-    with self.__captureLock:
+    with self.captureLock:
       if not self.__active:
         logging.warning("Attempted to stopCapture while camera is already inactive")
       else:
@@ -101,44 +88,46 @@ class SensorWrapper(abc.ABC):
         self.__active = False
     
     # One more release for the lock we got in startCapture
-    self.__captureLock.release()
+    self.captureLock.release()
     
   def __captureLoop(self):
     """The internal capture loop function that startCaptureLoop executes in a
     different thread"""
-    with self.__captureLock:
+    with self.captureLock:
       # Start capture
       self.__startCapture()
 
       # Set capture loop to true
       self.__inCaptureLoop = True
 
-      # Keep running while the stop flag isn't set
-      while not self.__stopEvent.is_set():
-        # Wait on the capture event for 100ms; if we get it,
-        # capture and log our capture object. Otherwise, we timed out,
-        # in which case we should re-start the loop to ensure we comply
-        # with the stop event quickly
-        if self.__captureEvent.wait(timeout=0.1):
-          # We got the signal to take a capture, so get that capture and
-          # log it to BOTH the external and internal queue
-          newCapture = self.rawSensor.capture(self.__uid)
+      # Continuously get messages from the control queue
+      while True:
+        # Get a string from the control queue, blocking until we have one
+        controlString = self.controlQueue.get(block=True, timeout=None)
 
-          # For the internal queue, clear it first and then log this to it
-          while not self.__internalCaptureQueue.empty():
-            try:
-              self.__internalCaptureQueue.get(block=False)
-            except:
-              # If we errored the queue is empty, so skip
-              break
+        # If we got "STOP", break out of this loop
+        if type(controlString) is str and controlString == "NONE":
+          break
           
-          # Log to internal queue
-          self.__internalCaptureQueue.put(newCapture, block=False)
+        # Otherwise, continue; we got the signal to take a capture, so get that capture and
+        # log it to BOTH the external and internal queue
+        newCapture = self.rawSensor.capture(self.uid)
 
-          # Also log to external queue
-          self.__externalCaptureQueue.put(newCapture, block=False)
+        # For the internal queue, clear it first and then log this to it
+        while not self.internalCaptureQueue.empty():
+          try:
+            self.internalCaptureQueue.get(block=False)
+          except:
+            # If we errored the queue is empty, so skip
+            break
+        
+        # Log to internal queue
+        self.internalCaptureQueue.put(newCapture, block=True)
 
-          # Done, so just go to the next loop
+        # Also log to external queue
+        self.externalCaptureQueue.put(newCapture, block=True)
+
+        # Done, so just go to the next loop
       
       # If we got here we were ordered to stop capture, so do cleanup here
       self.__inCaptureLoop = False
@@ -161,12 +150,12 @@ class SensorWrapper(abc.ABC):
     # where it's not.
     if self.__inCaptureLoop:
       # In this case, just return the next mesasge on the internal capture queue
-      return self.__internalCaptureQueue.get(block=True)
+      return self.internalCaptureQueue.get(block=True)
     else:
       # If not, acquire RLock, configure sensor and get a capture
-      with self.__captureLock:
+      with self.captureLock:
         self.__startCapture()
-        cap = self.rawSensor.capture(self.__uid)
+        cap = self.rawSensor.capture(self.uid)
         self.__endCapture()
 
         return cap
