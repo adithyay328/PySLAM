@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "pyslam"
+version = "0.1.0"
+description = "Python implementation for some common SLAM algorithms."
+authors = ["Adithya Yerramsetty <adithyay@hotmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+numpy = "^1.24.2"
+opencv-python = "^4.7.0.68"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
