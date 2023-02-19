@@ -2,7 +2,7 @@ import numpy as np
 
 from pyslam.sensing.MonocularCameraCapture import MonocularCameraCapture
 
-class NormalizedMonocularCapture:
+class MonocularCaptureNormalizer:
     """This class takes in a Monocular Camera Capture, 
     and applies translation + isotropic(uniform) scaling to normalize
     the point's coordinates such that it is zero-meaned with the 
