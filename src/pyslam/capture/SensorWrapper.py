@@ -169,7 +169,7 @@ class SensorWrapper(abc.ABC):
                     block=True,
                 )
 
-                # Done, so just go to the next loop
+                # Done, keep looping
 
             # If we got here we were ordered to stop capture,
             # so do cleanup here
