@@ -1,4 +1,4 @@
-# Contains definitions for a standard, monocular, 
+# Contains definitions for a standard, monocular,
 # uncalibrated raw camera sensor.
 
 import cv2
@@ -12,7 +12,8 @@ from pyslam.sensing.MonocularCameraCapture import (
 
 
 class UncalibratedMonocularFileCameraRawSensor(RawSensor):
-    """Implements logic to capture frames from an uncalibrated, monocular camera i.e.
+    """Implements logic to capture frames from an uncalibrated,
+    monocular camera i.e.
     a webcam on a laptop. Expects cameras to be available as a
     file like /dev/video0, and uses opencv to get image frames.
     Treats cameras as if they aren't calibrated
@@ -49,12 +50,13 @@ class UncalibratedMonocularFileCameraRawSensor(RawSensor):
         # Get a frame from the cv2 capture object, then construct
         # a capture object
         # and send it out
-        (
+        results = (
             ret,
             frame,
         ) = self.__cvCapture.read()
 
+        blackAndWhiteFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
         return MonocularCameraCapture(
-            sensorWrapperUID,
-            frame,
+            sensorWrapperUID, "bgr", results[1], blackAndWhiteFrame
         )

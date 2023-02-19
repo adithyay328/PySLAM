@@ -81,7 +81,9 @@ class CaptureManager:
 
                 # Pop the sensor UID off of the list of sensors
                 # we haven't heard from
-                sensorsThatHaventReported.remove(capture.sensorWrapperUID)
+                sensorsThatHaventReported.remove(
+                    capture.sensorWrapperUID
+                )
 
                 # Put in our captures map
                 self.captures[capture.uid] = capture
@@ -124,4 +126,6 @@ class CaptureManager:
 
         # Update internal mapping of sensors
         self.sensors[sensorWrapper.uid] = sensorWrapper
-        self.sensorControlQueues[sensorWrapper.uid] = sensorControlQueue
+        self.sensorControlQueues[
+            sensorWrapper.uid
+        ] = sensorControlQueue

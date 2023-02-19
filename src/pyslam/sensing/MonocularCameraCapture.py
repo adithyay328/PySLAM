@@ -8,16 +8,17 @@ from pyslam.capture.Capture import (
     Capture,
 )
 
+
 class MonocularCameraCapture(Capture):
     """A camera capture sub-class that contains opencv
     matrices representing images."""
 
     def __init__(
         self,
-        sensorWrapperUID : str,
-        colorFormat : str,
+        sensorWrapperUID: str,
+        colorFormat: str,
         sourceImgMatix: cv2.Mat,
-        bwImgMat : cv2.Mat
+        bwImgMat: cv2.Mat,
     ):
         """
         :param sensorWrapperUID: The UID of the sensor wrapper this

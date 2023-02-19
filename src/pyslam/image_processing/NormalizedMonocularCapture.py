@@ -1,16 +1,22 @@
 import numpy as np
 
-from pyslam.sensing.MonocularCameraCapture import MonocularCameraCapture
+from pyslam.sensing.MonocularCameraCapture import (
+    MonocularCameraCapture,
+)
+
 
 class MonocularCaptureNormalizer:
-    """This class takes in a Monocular Camera Capture, 
+    """This class takes in a Monocular Camera Capture,
     and applies translation + isotropic(uniform) scaling to normalize
-    the point's coordinates such that it is zero-meaned with the 
-    mean distance of the points to the origin being sqrt(2). 
-    This is the normalization expected by the normalized eight point 
-    and normalized DLT algorithms for fundamental and homography 
+    the point's coordinates such that it is zero-meaned with the
+    mean distance of the points to the origin being sqrt(2).
+    This is the normalization expected by the normalized eight point
+    and normalized DLT algorithms for fundamental and homography
     matrix estimation, respectively."""
-    def __init__(self, monocularCameraCapture : MonocularCameraCapture):
+
+    def __init__(
+        self, monocularCameraCapture: MonocularCameraCapture
+    ):
         # Store the core monocular capture before running our normalization
         # procedures
         self.monocularCameraCapture = monocularCameraCapture
@@ -25,7 +31,7 @@ class MonocularCaptureNormalizer:
         self.meanCoord = np.mean(bwSourceMat, axis=0)
 
         # Construct the translation matrix associated with the translation
-        # we're about to execute; useful for constructing 
+        # we're about to execute; useful for constructing
         # un-normalized fundamental matrices from the normalized, for
         # example
         self.translationMat = np.eye(3)
@@ -42,14 +48,14 @@ class MonocularCaptureNormalizer:
         # The final scale factor we will use; we want to normalize
         # such that the final scale factor is sqrt(2), so that's computed
         # here
-        self.finalScaleFactor = (2 ** 0.5) / meanNorm
+        self.finalScaleFactor = (2**0.5) / meanNorm
 
         # Now, like before, comptue and set the 3x3 matrix that
         # represents this scale operation
         self.scaleMat = np.eye(3)
         self.scaleMat[0][0] = self.finalScaleFactor
         self.scaleMat[1][1] = self.finalScaleFactor
-        
+
         # Apply isotropic normalization and store internally
         self.normalized = zeroMeanedMat * self.finalScaleFactor
 

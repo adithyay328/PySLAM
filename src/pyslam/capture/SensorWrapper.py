@@ -55,7 +55,9 @@ class SensorWrapper(abc.ABC):
         self.rawSensor = rawSensor
 
         # These need to be set by the capture manager when registered
-        self.controlQueue: multiprocessing.Queue = multiprocessing.Queue()
+        self.controlQueue: multiprocessing.Queue = (
+            multiprocessing.Queue()
+        )
         self.externalCaptureQueue: multiprocessing.Queue = (
             multiprocessing.Queue()
         )
@@ -140,7 +142,10 @@ class SensorWrapper(abc.ABC):
                 )
 
                 # If we got "STOP", break out of this loop
-                if type(controlString) is str and controlString == "NONE":
+                if (
+                    type(controlString) is str
+                    and controlString == "NONE"
+                ):
                     break
 
                 # Otherwise, continue; we got the signal to take a
