@@ -4,13 +4,23 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Lint Python",
+            "label": "Format Python With Black",
             "type": "shell",
             "command": "black -l 65 .",
             "group": {
                 "kind": "build",
                 "isDefault": false
             }
-        }
+        },
+        {
+            "label": "Lint Python with Flake8",
+            "type": "shell",
+            "command": "flake8 ./src/",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        
     ]
 }
