@@ -2,6 +2,9 @@ import multiprocessing
 import datetime
 import time
 
+from pyslam.capture.CaptureGroup import (
+    CaptureGroup
+)
 
 class CaptureManager:
     """This class is responsible for managing all
@@ -13,7 +16,7 @@ class CaptureManager:
 
     def __init__(
         self,
-        stopEvent: multiprocessing.Event,
+        stopEvent,
         captureRate=5,
     ):
         """
@@ -55,15 +58,18 @@ class CaptureManager:
         # captures, all from the same capture timestep
         self.timeStepGroupQueue = multiprocessing.Queue()
 
-    def startCaptureLoop(
+    def __captureLoop(
         self,
     ):
-        """Starts the capture loop, exits when the stop event is given"""
+        """The internal capture loop that the manager runs
+        ; expected to be started in a new thread
+        by the startCaptureLoop function. Exits when the stop
+        flag is set"""
         while not self.stopEvent.is_set():
             # Keep track of when the loop started
             startDTime = datetime.datetime.utcnow()
 
-            # Set of all sensors that haven't given a capture for this
+            # Keep track of which sensors haven't given a capture for this
             # timestep yet
             sensorsThatHaventReported = set(list(self.sensors.keys()))
 
@@ -72,7 +78,7 @@ class CaptureManager:
                 k,
                 v,
             ) in self.sensorControlQueues:
-                v.put("Capture!")
+                v.put("Capture")
 
             # Wait until all sensors have given a response
             while len(sensorsThatHaventReported) > 0:
@@ -81,16 +87,17 @@ class CaptureManager:
 
                 # Pop the sensor UID off of the list of sensors
                 # we haven't heard from
-                sensorsThatHaventReported.remove(
-                    capture.sensorWrapperUID
-                )
+                sensorsThatHaventReported.remove(capture.sensorWrapperUID)
 
                 # Put in our captures map
                 self.captures[capture.uid] = capture
 
-                # Update step to capture UIDs to include this
+                # Store UID in stepTOCaptureUIDs, creating the list
+                # first if needed
                 if self.currTimeStep not in self.stepToCaptureUIDs:
                     self.stepToCaptureUIDs = []
+
+                # Store UID
                 self.stepToCaptureUIDs[self.currTimeStep].append(
                     capture.uid
                 )
@@ -98,19 +105,34 @@ class CaptureManager:
                 # Continue
 
             # At this point, this capture timestep is done. Log
-            # to the time step group queue
+            # to the time step group queue as a capture group
             self.timeStepGroupQueue.put(
-                self.stepToCaptureUIDs[self.currTimeStep]
+                CaptureGroup(self.stepToCaptureUIDs[self.currTimeStep])
             )
 
             # Increment curr timestep
             self.currTimeStep += 1
 
-            # Sleep
+            # Sleep until next scheduled capture timing
             secondsToSleep = (1 / self.captureRate) - (
                 datetime.datetime.utcnow() - startDTime
             ).total_seconds()
             time.sleep(secondsToSleep)
+        
+        # If we got here, we were ordered to stop capturing.
+        # Send out stop event
+        # Send capture trigger events to all message queues
+            for (
+                k,
+                v,
+            ) in self.sensorControlQueues:
+                v.put("STOP")
+    
+    def startCaptureLoop(self):
+        """Starts the internal capture loop in a separate process."""
+        # Start the capture loop process; it will terminate on its own
+        p = multiprocessing.Process(target=self.__captureLoop)
+        p.start()
 
     def register(
         self,
@@ -126,6 +148,4 @@ class CaptureManager:
 
         # Update internal mapping of sensors
         self.sensors[sensorWrapper.uid] = sensorWrapper
-        self.sensorControlQueues[
-            sensorWrapper.uid
-        ] = sensorControlQueue
+        self.sensorControlQueues[sensorWrapper.uid] = sensorControlQueue

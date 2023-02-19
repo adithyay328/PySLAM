@@ -14,7 +14,7 @@ from RawSensor import (
 class SensorWrapper(abc.ABC):
     """This class wraps around a raw object for a physical camera
     sensor attached to our system.
-    This class deals with capturing images from that sensor, and all the piping
+    This class deals with getting captures from that sensor, and all the piping
     and inter-process communication related to that.
 
     The ImageSensor has a couple high-level functions it needs to support:
@@ -25,12 +25,12 @@ class SensorWrapper(abc.ABC):
        to allow for more accurate timing.
       2. Take a single capture. This seems like a pretty fundamental
         thing to be able to do,
-         and so all SensorWrapper allow this. The way this is
+         and so all SensorWrappers allow this. The way this is
          implemented is with 2 cases, one where the Sensor is in
          a capture loop and one where it isn't.
           a. When in a capture loop, we shouldn't inerfere with the
-             capture and should instead grab a copy of the image from the
-             camera loop. To do this, we have an internal queue
+             capture and should instead grab a copy of the most recent
+             capture from the camera loop. To do this, we have an internal queue
              where we post the most recent capture from the loop. When
              you want to get a capture, simply wait for this queue to have
              one on it.
@@ -55,9 +55,7 @@ class SensorWrapper(abc.ABC):
         self.rawSensor = rawSensor
 
         # These need to be set by the capture manager when registered
-        self.controlQueue: multiprocessing.Queue = (
-            multiprocessing.Queue()
-        )
+        self.controlQueue: multiprocessing.Queue = multiprocessing.Queue()
         self.externalCaptureQueue: multiprocessing.Queue = (
             multiprocessing.Queue()
         )
@@ -142,10 +140,7 @@ class SensorWrapper(abc.ABC):
                 )
 
                 # If we got "STOP", break out of this loop
-                if (
-                    type(controlString) is str
-                    and controlString == "NONE"
-                ):
+                if type(controlString) is str and controlString == "STOP":
                     break
 
                 # Otherwise, continue; we got the signal to take a

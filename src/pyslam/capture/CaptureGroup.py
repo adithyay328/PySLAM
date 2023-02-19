@@ -1,10 +1,10 @@
 class CaptureGroup:
-    """A group of capture objects together. Just a type that wraps around a
+    """A group of capture object UIDs together. Just a type that wraps around a
     list effectively.
     """
 
     def __init__(
         self,
-        listOfCaptures,
+        listOfCaptureUIDs,
     ):
-        self.listOfCaptures = listOfCaptures
+        self.listOfCaptureUIDs = listOfCaptureUIDs
