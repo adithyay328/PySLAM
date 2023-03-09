@@ -9,6 +9,7 @@ from pyslam.capture.common.monocular_uncalibrated_camera import (
     MonocularUncalibratedFileCamera,
     MonocularUncalibratedCameraMeasurement,
 )
+from pyslam.image_processing.cv_pillow import pillowToArray, PillowColorFormat
 
 from pyslam.pubsub.MessageQueue import MessageQueue
 
@@ -46,7 +47,8 @@ def pygameUpdater(
         )
 
         # Extract the source image
-        sourceImage: cv2.Mat = nextCamMeasure.image.sourceImgMat
+        # sourceImage: cv2.Mat = nextCamMeasure.image.sourceImgMat
+        sourceImage: cv2.Mat = pillowToArray(nextCamMeasure.image)
 
         # If pygame surface is a NoneType, use the dimensions of the received
         # numpy array to initialize it
@@ -91,7 +93,7 @@ def run() -> None:
     # Build a sensor we can listen to
     cameraSensor: MonocularUncalibratedFileCamera = (
         MonocularUncalibratedFileCamera(
-            cameraFName, cv2.COLOR_BGR2GRAY
+            cameraFName, PillowColorFormat.RGB, -1
         )
     )
 

@@ -1,8 +1,9 @@
 from typing import Optional
 from datetime import datetime
 
+from PIL.Image import Image
+
 from pyslam.capture import Measurement, MeasurementSource
-from pyslam.image_processing.Image import Image
 from pyslam.uid import UID
 
 
@@ -15,7 +16,7 @@ class MonocularUncalibratedCameraMeasurement(Measurement):
         measurement
     :param sourceUID: The UID of the MeasurementSource that
         yielded this measurement.
-    :param image: The image object representing the image for
+    :param image: The pillow image object representing the image for
         this measurement.
     :param timestamp: If already known, represents the timestamp
         of this measurement.
