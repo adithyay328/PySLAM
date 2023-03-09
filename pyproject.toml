@@ -21,6 +21,8 @@ sphinx-autoapi = "^2.0.1"
 pylint = "^2.16.2"
 pose3d = "^2.1.0"
 pygame = "^2.2.0"
+pyglet = "^2.0.5"
+pillow = "^9.4.0"
 
 
 [build-system]

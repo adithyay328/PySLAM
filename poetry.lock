@@ -1284,6 +1284,18 @@ files = [
 ]
 
 [[package]]
+name = "pyglet"
+version = "2.0.5"
+description = "Cross-platform windowing and multimedia library"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pyglet-2.0.5-py3-none-any.whl", hash = "sha256:b0b94d0a3f9d0016bee506566fd13d7c62b5b9d10b6e16d32765d654959ba4dc"},
+    {file = "pyglet-2.0.5.zip", hash = "sha256:c47ff4eded95104d030e0697eedd6082b61dc987460bbca83ec47b6e7cbfd38a"},
+]
+
+[[package]]
 name = "pygments"
 version = "2.14.0"
 description = "Pygments is a syntax highlighting package written in Python."
@@ -1907,4 +1919,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1"
-content-hash = "349d883a38c3ba3432f1e6153733f6fbac199d8291286d806c39dee994a0757b"
+content-hash = "e0f7f1ae03455e8d0172c83f973925ac2d04d646981dcca0472a2f35c3145cad"
