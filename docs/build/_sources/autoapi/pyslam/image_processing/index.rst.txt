@@ -1,0 +1,30 @@
+:py:mod:`pyslam.image_processing`
+=================================
+
+.. py:module:: pyslam.image_processing
+
+.. autoapi-nested-parse::
+
+   This module defines a lot of utilities for extracting useful primitives
+   from images.
+
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   feature_descriptors/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   Image/index.rst
+
+

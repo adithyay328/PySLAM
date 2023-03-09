@@ -1,0 +1,82 @@
+:py:mod:`pyslam.capture_old.SensorWrapper`
+==========================================
+
+.. py:module:: pyslam.capture_old.SensorWrapper
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture_old.SensorWrapper.SensorWrapper
+
+
+
+
+.. py:class:: SensorWrapper(name: str, rawSensor: pyslam.capture.RawSensor)
+
+   Bases: :py:obj:`abc.ABC`
+
+   This class wraps around a raw object for a physical sensor attached to our system.
+   This class deals with getting captures from that sensor, and all the piping
+   and inter-process communication related to that.
+
+   The ImageSensor has a couple high-level functions it needs to support:
+     1. Support for a capture loop. When commanded, image sensors should
+      be able to put themselves into a capture loop state, where the
+      timings of their captures are entirely decided by the capture
+      loop in the CaptureManager. This should be in a different thread
+      to allow for more accurate timing.
+     2. Take a single capture. This seems like a pretty fundamental
+       thing to be able to do,
+        and so all SensorWrappers allow this. The way this is
+        implemented is with 2 cases, one where the Sensor is in
+        a capture loop and one where it isn't.
+         a. When in a capture loop, we shouldn't inerfere with the
+            capture and should instead grab a copy of the most recent
+            capture from the camera loop. To do this, we have an internal queue
+            where we post the most recent capture from the loop. When
+            you want to get a capture, simply wait for this queue to have
+            one on it.
+         b. In the case where we aren't currently in a capture loop, simply
+             start capturing, pull a frame, and stop capturing.
+
+
+   .. py:method:: __startCapture()
+
+      Sets active flag to true, acquires the capture lock,
+      and configures our sensor to be ready for capture
+
+
+   .. py:method:: __endCapture()
+
+      Sets active flag to false, clears the capture lock,
+      and tears down the sensor.
+
+
+   .. py:method:: __captureLoop()
+
+      The internal capture loop function that startCaptureLoop executes in a
+      different thread
+
+
+   .. py:method:: startCaptureLoop()
+
+      External function to start the capture loop
+      in its own multi-process
+
+
+   .. py:method:: getCapture()
+
+      This function implements a thread-safe and non-intrusive
+      way to get the latest capture from the sensor. It deals
+      with the problems of co-operating with the capture loop
+      if it's currently running, and generally makes it easy
+      to get a capture from a SensorWrapper
+
+
+

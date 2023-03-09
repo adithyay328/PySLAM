@@ -1,0 +1,39 @@
+:py:mod:`pyslam.sensors.UncalibratedFileCameraRawSensor`
+========================================================
+
+.. py:module:: pyslam.sensors.UncalibratedFileCameraRawSensor
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.sensors.UncalibratedFileCameraRawSensor.UncalibratedMonocularFileCameraRawSensor
+
+
+
+
+.. py:class:: UncalibratedMonocularFileCameraRawSensor(cameraFName, cvColorConversionCode)
+
+   Bases: :py:obj:`pyslam.capture.RawSensor`
+
+   Implements logic to capture frames from an uncalibrated,
+   monocular camera i.e.
+   a webcam on a laptop. Expects cameras to be available as a
+   file like /dev/video0, and uses opencv to get image frames.
+   Treats cameras as if they aren't calibrated
+
+   .. py:method:: activateSensor()
+
+
+   .. py:method:: teardownSensor()
+
+
+   .. py:method:: capture(sensorWrapperUID) -> pyslam.sensors.MonocularUncalibratedCameraCapture
+
+
+

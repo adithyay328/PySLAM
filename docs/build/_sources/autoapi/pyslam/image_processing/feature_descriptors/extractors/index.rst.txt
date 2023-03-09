@@ -1,0 +1,23 @@
+:py:mod:`pyslam.image_processing.feature_descriptors.extractors`
+================================================================
+
+.. py:module:: pyslam.image_processing.feature_descriptors.extractors
+
+.. autoapi-nested-parse::
+
+   This module defines base classes and specific implementations
+   of extractors, which are utilities that can extract features
+   and their corresponding descriptors from images.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   DescriptorExtractionScheme/index.rst
+   KeypointExtractionScheme/index.rst
+
+

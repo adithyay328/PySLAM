@@ -1,0 +1,68 @@
+:py:mod:`pyslam.capture.SensorWrapper`
+======================================
+
+.. py:module:: pyslam.capture.SensorWrapper
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture.SensorWrapper.SensorWrapper
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture.SensorWrapper.T
+
+
+.. py:data:: T
+
+   
+
+.. py:class:: SensorWrapper(sensor: pyslam.capture.Sensor)
+
+   Bases: :py:obj:`pyslam.pubsub.Publisher`\ [\ :py:obj:`pyslam.capture.Measurement`\ ]
+
+   This class wraps around a Sensor, and handles
+   all the piping and boilerplate related to
+   making those captures available to downstream
+   processing pipelines through a publisher interface.
+
+   :param sensor: The sensor this wrapper wraps around.
+
+   .. py:method:: __internalCaptureLoop(captureRate: float)
+
+      An internal function that does all the work related to
+      getting sensor measurements, propogating to all
+      listeners and waiting for the appropriate amount of time
+      to run next
+
+      :param captureRate: A float indicating how many measurements
+        we should pull from the sensor per second.
+
+
+   .. py:method:: captureLoop(captureRate: float) -> None
+      :async:
+
+      Function to run the capture loop. Execute this
+      using an asyncio task to keep it alive while
+      you want this sensor to capture. Cancellation
+      is also easily handled by simply sending a cancel
+      request to the enclosing task.
+
+      :param captureRate: The rate at which the underlying
+        sensor and this wrapper should get new measurements.
+        Units are in measurements per second.
+
+
+

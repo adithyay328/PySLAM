@@ -1,0 +1,50 @@
+:py:mod:`pyslam.main`
+=====================
+
+.. py:module:: pyslam.main
+
+.. autoapi-nested-parse::
+
+   main.py
+   ====================================
+   The core module of my example project
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.main.ExampleClass
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.main.about_me
+
+
+
+.. py:function:: about_me(your_name)
+
+   Return the most important thing about a person.
+   :param your_name: A string indicating the name of the person.
+
+
+.. py:class:: ExampleClass(name)
+
+   An example docstring for a class definition.
+
+   .. py:method:: about_self()
+
+      Return information about an instance created from ExampleClass.
+
+
+

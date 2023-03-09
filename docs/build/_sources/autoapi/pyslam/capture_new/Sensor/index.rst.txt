@@ -1,0 +1,63 @@
+:py:mod:`pyslam.capture_new.Sensor`
+===================================
+
+.. py:module:: pyslam.capture_new.Sensor
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture_new.Sensor.Sensor
+
+
+
+
+.. py:class:: Sensor
+
+   Bases: :py:obj:`abc.ABC`
+
+   An abstract base class representing a general sensor.
+   For every kind of specific sensor we want to work with,
+   a subclass of this needs to be implemented to
+   allow the framework to get capture objects from the sensor.
+
+   Here are some assumptions we make about how sensors work; these
+   will be of use for anyone who wants to implement their own kind
+   of sensor:
+
+   * Sensors, after instantiation, are in a some kind of "stand-by" state,
+     where they are not currently capturing any data but can be moved into
+     an active/capturing state almost instantly. A concrete example could be
+     given by a camera; a camera/webcam, after the system boots, isn't always
+     capturing but can begin capturing almost immediately.
+
+   * When the framework makes a call to getCapture(), we expect a result to be
+     available almost immediately(we still use async functions to give some
+     leeway). This means that if your sensor takes time to get readings from,
+     such as a remote camera, it's reccomended to capture from the sensor
+     in an internal, separate capture loop, and simply pop the most recent
+     capture off that loop when the framework
+     requests a capture.
+
+   .. py:method:: makeActive(captureFrequency: int) -> None
+      :abstractmethod:
+
+      When called, the framework is asking this sensor to be
+      prepared to start returning captures. Internally, this
+      function can be used for any setup needed to get the sensor
+      into an active state.
+
+      For example, for a camera, this might
+      start an interal capture loop that gets opencv frames from the
+      camera at some frequency, and then saves them to some internal
+      buffer. This would allow the getCapture() function to complete
+      almost instantly, by simply popping the most recent capture
+      off the buffer.
+
+
+

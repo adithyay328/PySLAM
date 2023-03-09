@@ -1,0 +1,30 @@
+:py:mod:`pyslam.image_processing.feature_descriptors.ImageFeatures`
+===================================================================
+
+.. py:module:: pyslam.image_processing.feature_descriptors.ImageFeatures
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures
+
+
+
+
+.. py:class:: ImageFeatures(inputImage: pyslam.image_processing.Image.Image, featureType: FeatureType)
+
+   This class is responsible for all computations related to
+   keypoints and descriptors for an image. It .
+
+   .. py:method:: __computeORBDescriptors()
+
+      Internal function to compute ORB descriptors for this image
+
+
+

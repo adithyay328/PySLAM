@@ -1,0 +1,36 @@
+:py:mod:`pyslam.capture.common.monocular_uncalibrated_camera.MonocularUncalibratedCameraMeasurement`
+====================================================================================================
+
+.. py:module:: pyslam.capture.common.monocular_uncalibrated_camera.MonocularUncalibratedCameraMeasurement
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture.common.monocular_uncalibrated_camera.MonocularUncalibratedCameraMeasurement.MonocularUncalibratedCameraMeasurement
+
+
+
+
+.. py:class:: MonocularUncalibratedCameraMeasurement(uid: Optional[pyslam.uid.UID], sourceUID: pyslam.uid.UID, image: pyslam.image_processing.Image.Image, timestamp: Optional[datetime.datetime] = None)
+
+   Bases: :py:obj:`pyslam.capture.Measurement`
+
+   A measurement representing an image from an uncalibrated,
+   monocular camera.
+
+   :param uid: If already known, represents the UID of this
+       measurement
+   :param sourceUID: The UID of the MeasurementSource that
+       yielded this measurement.
+   :param image: The image object representing the image for
+       this measurement.
+   :param timestamp: If already known, represents the timestamp
+       of this measurement.
+
+

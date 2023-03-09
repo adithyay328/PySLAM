@@ -1,0 +1,32 @@
+:py:mod:`pyslam.uid`
+====================
+
+.. py:module:: pyslam.uid
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.uid.UID
+
+
+
+
+.. py:class:: UID(uid: Optional[str] = None)
+
+   A class representing a unique identifier
+
+   .. py:property:: uid
+      :type: str
+
+
+   .. py:method:: generateUID()
+      :staticmethod:
+
+
+

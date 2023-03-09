@@ -1,0 +1,46 @@
+:py:mod:`pyslam.image_processing.ImageFeatures`
+===============================================
+
+.. py:module:: pyslam.image_processing.ImageFeatures
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.image_processing.ImageFeatures.FeatureType
+   pyslam.image_processing.ImageFeatures.ImageFeatures
+
+
+
+
+.. py:class:: FeatureType
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: ORB
+      :value: 1
+
+      
+
+
+.. py:class:: ImageFeatures(inputImage: pyslam.image_processing.Image, featureType: FeatureType)
+
+   This class takes in an image object and a specification of what
+   feature type to compute, detects the specified feature types and
+   stores them internally for further processing.
+
+   .. py:method:: __computeORBDescriptors()
+
+      Internal function to compute ORB descriptors for this image
+
+
+

@@ -3,3 +3,6 @@
 
 # Ignore pycaches
 **/__pycache__/**
+
+# Ignore all mypy caches
+**/.mypy_cache/**

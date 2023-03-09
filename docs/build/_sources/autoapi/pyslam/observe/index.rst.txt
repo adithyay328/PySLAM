@@ -1,0 +1,26 @@
+:py:mod:`pyslam.observe`
+========================
+
+.. py:module:: pyslam.observe
+
+.. autoapi-nested-parse::
+
+   This module defines some helper utilities for
+   working with a pattern that shows up commonly
+   in SLAM, which is the Observer pattern;
+   to give an example as to why this makes sense,
+   suppose you have a pipeline where you
+
+   #. Capture an image from the camera
+   #. Extract features from the camera
+   #. Fit a model to the features in a stereo pair of cameras
+      i.e fit a fundamental/homography matrix
+   #. Get motion hypotheses from those models.
+   #. Add the new keyframe/pose to our factor graph.
+
+   Note that in this case, step 2 only runs IN RESPONSE to step 1
+   completing, and step 3 only runs IN RESPONSE to step 2,
+   etc. As such, it seems reasonable to have some
+
+
+

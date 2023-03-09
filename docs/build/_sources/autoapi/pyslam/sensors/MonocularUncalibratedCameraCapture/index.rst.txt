@@ -1,0 +1,27 @@
+:py:mod:`pyslam.sensors.MonocularUncalibratedCameraCapture`
+===========================================================
+
+.. py:module:: pyslam.sensors.MonocularUncalibratedCameraCapture
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.sensors.MonocularUncalibratedCameraCapture.MonocularUncalibratedCameraCapture
+
+
+
+
+.. py:class:: MonocularUncalibratedCameraCapture(sensorWrapperUID: str, image: pyslam.image_processing.Image, uid=None)
+
+   Bases: :py:obj:`pyslam.capture.Capture`
+
+   A capture sub-class that contains opencv
+   matrices representing images.
+
+

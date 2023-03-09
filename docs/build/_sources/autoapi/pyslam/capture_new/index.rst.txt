@@ -1,0 +1,15 @@
+:py:mod:`pyslam.capture_new`
+============================
+
+.. py:module:: pyslam.capture_new
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   Sensor/index.rst
+
+

@@ -1,0 +1,214 @@
+:py:mod:`pyslam.optim.ransac`
+=============================
+
+.. py:module:: pyslam.optim.ransac
+
+.. autoapi-nested-parse::
+
+   This sub-module implements logic to get rid
+   of a lot of the boiler plate logic for RANSAC,
+   and allows it to be automatically parralelized.
+
+   This comes after observing that by its nature,
+   separate RANSAC iterations have no inter-dependency,
+   and so should run in parralel as much as possible
+
+   Below is the pseudocode for a general RANSAC estimation
+   problem; hopefully it provides some insight into why the
+   types and class defined in this module are defined as they
+   are:
+
+   RANSAC:
+
+   #. Denote as "models" an array containing all models we determine
+      in running RANSAC; set this to an empty array initially
+   #. Denote as "inliers" an array such that "inliers"[i] tells us how
+      many inliers "models"[i] had; set this to an empty array
+      initially
+   #. for i = 1 to N iterations:
+
+      #. Pick a random sub-sample of the whole dataset of size N
+      #. Fit the model in question to the sub-sample of the dataset
+      #. Denote as "inlier_count" the number of inliers; set this to
+         0 initially
+      #. Denote as "inliers" an array or all inliers we found; set
+         this to an empty array initially
+      #. For j = 1 to D, where D is the number of datapoints in the
+          entire dataset
+
+         #. Compute some "error" between the model and the jth
+            datapoint; denote this error as "err"
+         #. Denote as "thresh" a value that discriminates between
+            inliers and outliers; inliers have "err" < "thresh",
+            while outliters have "err" >= "thresh"
+         #. If "err" < "thresh", increment "inlier_count" by 1,
+             and add the jth datapoint to "inliers"
+
+      #. Add the model we just found to "models", and add our inlier
+         count to the end of "inliers"
+
+   #. Denote "best" as the model with the largest number of inliers
+   #. Return "best", optionally re-fitting it to all datapoitns
+
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   RANSACDataset/index.rst
+   RANSACEstimator/index.rst
+   RANSACModel/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.optim.ransac.RANSACDataset
+   pyslam.optim.ransac.RANSACModel
+   pyslam.optim.ransac.RANSACEstimator
+
+
+
+
+.. py:class:: RANSACDataset(data: List[T], indices: Optional[numpy.ndarray])
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ]
+
+   A Generic class representing a RANSAC dataset.
+   Expects data to be all in-memory as an array, and for
+   that to be passed in; this is just an assumption we make
+   for simplicity.
+
+   :param data: The data we are using in our dataset. We assume this
+     to be an array-like structure.
+   :param indices: The indices corresponding to our data. Allows us to
+     keep track of which datapoints correspond to which dataset indices,
+     which is especially useful once we compute random sub-samples.
+
+     By convention, all paramater indices correspond to the indices in the root dataset;
+     so, for example, if the first item in this sub-slice of the root dataset
+     corresponds to item 5 of the root dataset, the first item in indices
+     should be 4(5th element with zero indexing)
+
+   .. py:method:: __len__() -> int
+
+
+   .. py:method:: getSubsample(indices: numpy.ndarray) -> RANSACDataset[T]
+
+      Given a set of root idx indices, return a new RANSACDataset
+      with all requested data in it
+
+      :param indices: A numpy array containing all root indices
+        whose data we want in the resultant sub-sample. These indices
+        correspond to the root indices, not indices of this object's
+        data array.
+
+      :return: Returns a new RANSACDataset with the specified data.
+
+
+   .. py:method:: getRandomSubsample(numOfPoints: int) -> RANSACDataset[T]
+
+      Vanilla RANSAC, which is the scheme this
+      dataset expects to be involved with, uses
+      random, uniform sub-sampling. This function
+      returns another object of type self, but with
+      less DataPoints in it.
+
+      :param numOfPoints: The number of datapoints to
+        sample for this new sub-sample.
+      :return: Returns a new RANSACDataset with a sub-sample
+        of the data in this datasets
+
+
+
+.. py:class:: RANSACModel
+
+   Bases: :py:obj:`abc.ABC`, :py:obj:`Generic`\ [\ :py:obj:`T`\ ]
+
+   An abstract class representing some kind of model
+   that we wish to estimate using RANSAC against some
+   RANSACDataset. The generic type it takes in defines
+   what kind of data it fits against.
+
+   .. py:method:: fit(data: pyslam.optim.ransac.RANSACDataset[T]) -> None
+      :abstractmethod:
+
+      Fit the model to the specified RANSACDataset.
+
+
+   .. py:method:: findInlierIndices(data: pyslam.optim.ransac.RANSACDataset[T]) -> numpy.ndarray
+      :abstractmethod:
+
+      Given a RANSACDataset, determines which indices of its root dataset
+      are inliers for this model. This is a needed step in determining
+      the quality of a model, as models with the highest number of inliers
+      have the highest quality. As well, by keeping track of which indices
+      are inliers, we can optionally re-fit the model on inliers after
+      selecting the best model.
+
+      :param data: The dataset we are going to determine inliers on.
+
+      :return: Returns a numpy array containing all root indices
+        determined to be inliers.
+
+
+
+.. py:class:: RANSACEstimator(numWorkers: int)
+
+   A class responsible for estimating
+   a RANSACModel from a RANSACDataset using
+   a specified number of random iterations.
+   Internally, all the constructor does is create
+   a thread-pool for running estimation in parralel.
+
+   :param numWorkers: The number of workers to instantiate
+     in the internal ProcessPoolExecutor
+
+   .. py:method:: __getModelAndInliers(fullDataset: pyslam.optim.ransac.RANSACDataset[D], subset: pyslam.optim.ransac.RANSACDataset[D], modelConstructor: Callable[[], pyslam.optim.ransac.RANSACModel[D]]) -> Tuple[pyslam.optim.ransac.RANSACModel[D], numpy.ndarray]
+      :staticmethod:
+
+      A helper function that returns a fitted RANSACModel and its predicted inliers in one function.
+
+      :param fullDataset: The full dataset we were given.
+      :param subset: A sub-set of the dataset to fit the model to.
+      :param modelConstructor: A function tha takes no paramaters
+        and returns an instance of the RANSACModel type we are trying to fit.
+        Allows client code to use partial functions to pass in paramaters
+        required by the constructor of the RANASCModel; these could be
+        configuration paramaters, etc.
+
+      :return: Returns a tuple of (estimated model, numpy array of inlier indices)
+
+
+   .. py:method:: fit(data: pyslam.optim.ransac.RANSACDataset[D], modelConstructor: Callable[[], pyslam.optim.ransac.RANSACModel[D]], iterations: int, dataPointsPerIteration: int, refit: bool) -> pyslam.optim.ransac.RANSACModel[D]
+      :async:
+
+      Fits a RANSACModel to a given dataset. Runs
+      each iteration in parralel, and optionally re-fits the model on
+      all of the inliers determined by the best initial model.
+
+      :param data: The RANSACDataset to fit to.
+      :param modelConstructor: A function tha takes no paramaters
+        and returns an instance of the RANSACModel type we are trying to fit.
+        Allows client code to use partial functions to pass in paramaters
+        required by the constructor of the RANASCModel; these could be
+        configuration paramaters, etc.
+      :param iterations: The number of RANSAC iterations to run.
+      :param dataPointsPerIteration: The number of datapoints to sample for each
+        model fitting iteration.
+      :param refit: Whether or not to refit the best determined model on its
+        inliers.
+
+      :return: Retuns the best determined model.
+
+
+

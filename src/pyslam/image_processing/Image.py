@@ -1,0 +1,34 @@
+import cv2
+
+
+class Image:
+    """A core class that represents a single image; a monocular
+    camera capture would have one of these, while a stereo-camera
+    would have more than one. This just helps with homogenizing the
+    image processing pipeline for different types of sensors; ideally,
+    we should be able to run the same pipelines against stereo or
+    mono sensors without too many code tweaks.
+
+    :param cvColorConversionCode: The opencv color conversion code that, when used
+      with cv2.cvtColor, takes the inputted mat and outputs the correct
+      black and white image. An example would be cv.COLOR_BGR2GRAY, but
+      obviously it varies based on which camera you're taking it from.
+      Set to -1 if the source camera is black and white.
+    :param sourceMat: The image mat that came directly off the camera;
+      expected to be a cv2 mat so that all Images have the same data type.
+    :param bwImgMat: A cv mat that stores the source img mat in
+      black and white.
+      Needed so that the computer vision routines can easily grab the more
+      useful bw matrix, ignoring the source color encoding.
+    :param measurementUID: The UID of the source measurement where this came from.
+    """
+
+    def __init__(
+        self,
+        cvColorConversionCode: int,
+        sourceImgMat: cv2.Mat,
+        bwImgMat: cv2.Mat,
+    ):
+        self.cvColorConversionCode = cvColorConversionCode
+        self.sourceImgMat = sourceImgMat
+        self.bwImgMat = bwImgMat

@@ -1,0 +1,48 @@
+:py:mod:`pyslam.image_processing.stereo.StereoDescriptorMatches`
+================================================================
+
+.. py:module:: pyslam.image_processing.stereo.StereoDescriptorMatches
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.image_processing.stereo.StereoDescriptorMatches.StereoMatch
+   pyslam.image_processing.stereo.StereoDescriptorMatches.StereoDescriptorsMatches
+
+
+
+
+.. py:class:: StereoMatch
+
+   Simple dataclass to represent found matches
+   between img 1 and img2
+
+   .. py:attribute:: imgOneIdx
+      :type: int
+
+      
+
+   .. py:attribute:: imgTwoIdx
+      :type: int
+
+      
+
+
+.. py:class:: StereoDescriptorsMatches(imgOneFeatures: pyslam.image_processing.NormalizedImageFeatures, imgTwoFeatures: pyslam.image_processing.NormalizedImageFeatures)
+
+   This class takes in 2 sets of image features
+   and determines which descriptor
+   indices in the first image match to descriptors
+   in the second image. Internally uses FLANN and
+   Lowe's Ratio Test.
+
+   .. py:method:: computeMatches()
+
+
+

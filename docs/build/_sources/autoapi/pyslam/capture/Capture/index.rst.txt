@@ -1,0 +1,27 @@
+:py:mod:`pyslam.capture.Capture`
+================================
+
+.. py:module:: pyslam.capture.Capture
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture.Capture.Capture
+
+
+
+
+.. py:class:: Capture(uid: Optional[pyslam.UID])
+
+   Bases: :py:obj:`abc.ABC`
+
+   A generic base class that represents some kind of
+   capture/measurement from a sensor.
+
+

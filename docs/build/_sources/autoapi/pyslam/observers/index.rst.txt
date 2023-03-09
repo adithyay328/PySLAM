@@ -1,0 +1,88 @@
+:py:mod:`pyslam.observers`
+==========================
+
+.. py:module:: pyslam.observers
+
+.. autoapi-nested-parse::
+
+   This module defines some helper utilities for
+   working with a pattern that shows up commonly
+   in SLAM, which is the Observer pattern;
+   to give an example as to why this makes sense,
+   suppose you have a pipeline where you
+
+   #. Capture an image from the camera
+   #. Extract features from the camera
+   #. Fit a model to the features in a stereo pair of cameras
+      i.e fit a fundamental/homography matrix
+   #. Get motion hypotheses from those models.
+   #. Add the new keyframe/pose to our factor graph.
+
+   Note that in this case, step 2 only runs IN RESPONSE to step 1
+   completing, and step 3 only runs IN RESPONSE to step 2,
+   etc.
+
+   As such, it seems reasonable to implement the above
+   pipeline as a series of publishers and subscribers, as in the
+   observer design pattern, so that step 2 is automatically called by
+   step 1 upon completion using some kind of notify/handler function.
+
+   This module implements some basic constructs to make this quite easy
+   to implement.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   Publisher/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.observers.Publisher
+
+
+
+
+.. py:class:: Publisher
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
+
+   An abstract base class that can be subclassed
+   by any class that wants to act as a publisher.
+
+   .. py:method:: register(handler: Callable[[T], None]) -> None
+
+      Registers a handler with this publisher. Upon a new
+      message being sent, this handler will be called,
+      allowing it to do anything it needs with the new
+      message object. Note that the handler will be
+      executed in the same thread as the publisher,
+      and so operations that take a long time
+      should be done in a separate process, spawning
+      inside the given handler.
+
+      :param handler: A handler that takes in the message
+        object.
+
+
+   .. py:method:: publish(message: T) -> None
+
+      Iterates over all the listeners/handlers we have,
+      and runs them; these do not run on different threads,
+      and so any operations that take a long time
+      should be moved to a different thread or process inside
+      the given handler.
+
+
+

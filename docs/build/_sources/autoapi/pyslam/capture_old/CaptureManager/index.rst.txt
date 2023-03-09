@@ -1,0 +1,46 @@
+:py:mod:`pyslam.capture_old.CaptureManager`
+===========================================
+
+.. py:module:: pyslam.capture_old.CaptureManager
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture_old.CaptureManager.CaptureManager
+
+
+
+
+.. py:class:: CaptureManager(stopEvent: threading.Event, captureRate: int = 5)
+
+   This class is responsible for managing all
+   physical sensors attached to this system;
+   i.e. all SensorWrappers are registered with an instance
+   of this class. Also contains a lookup for all
+   captures we extract.
+
+   .. py:method:: __captureLoop()
+
+      The internal capture loop that the manager runs
+      ; expected to be started in a new thread
+      by the startCaptureLoop function. Exits when the stop
+      flag is set
+
+
+   .. py:method:: startCaptureLoop()
+
+      Starts the internal capture loop in a separate process.
+
+
+   .. py:method:: register(sensorWrapper)
+
+      Registers a new sensor wrapper with this CaptureManager.
+
+
+

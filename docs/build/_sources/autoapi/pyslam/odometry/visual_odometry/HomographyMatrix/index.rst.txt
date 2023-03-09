@@ -1,0 +1,30 @@
+:py:mod:`pyslam.odometry.visual_odometry.HomographyMatrix`
+==========================================================
+
+.. py:module:: pyslam.odometry.visual_odometry.HomographyMatrix
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix
+
+
+
+
+.. py:class:: HomographyMatrix(imgOneNormalizedFeatures: NormalizedImageFeatures, imgTwoNormalizedFeatures: NormalizedImageFeatures)
+
+   Bases: :py:obj:`pyslam.odometry.PoseTransformSource`
+
+   This is an abstract base class that is sub-classed
+   by any class that can return an estimation of pose
+   transformation; with visual odometry these could be
+   Fundamental and Homography matrices, and in the case
+   of VIO this could be an instance of IMU preintegration
+
+

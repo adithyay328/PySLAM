@@ -1,0 +1,35 @@
+:py:mod:`pyslam.image_processing.feature_descriptors`
+=====================================================
+
+.. py:module:: pyslam.image_processing.feature_descriptors
+
+.. autoapi-nested-parse::
+
+   Contains types and logic to work with image features,
+   such as ORB features. By "features" we are referring
+   to corner-like regions of interest, with "descriptors" generally
+   referring to some form of image patch descriptor.
+
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   descriptors/index.rst
+   extractors/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   Descriptor/index.rst
+   ImageFeatures/index.rst
+   Keypoint/index.rst
+
+

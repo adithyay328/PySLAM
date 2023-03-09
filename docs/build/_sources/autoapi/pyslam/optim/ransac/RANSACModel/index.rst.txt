@@ -1,0 +1,63 @@
+:py:mod:`pyslam.optim.ransac.RANSACModel`
+=========================================
+
+.. py:module:: pyslam.optim.ransac.RANSACModel
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.optim.ransac.RANSACModel.RANSACModel
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.optim.ransac.RANSACModel.T
+
+
+.. py:data:: T
+
+   
+
+.. py:class:: RANSACModel
+
+   Bases: :py:obj:`abc.ABC`, :py:obj:`Generic`\ [\ :py:obj:`T`\ ]
+
+   An abstract class representing some kind of model
+   that we wish to estimate using RANSAC against some
+   RANSACDataset. The generic type it takes in defines
+   what kind of data it fits against.
+
+   .. py:method:: fit(data: pyslam.optim.ransac.RANSACDataset[T]) -> None
+      :abstractmethod:
+
+      Fit the model to the specified RANSACDataset.
+
+
+   .. py:method:: findInlierIndices(data: pyslam.optim.ransac.RANSACDataset[T]) -> numpy.ndarray
+      :abstractmethod:
+
+      Given a RANSACDataset, determines which indices of its root dataset
+      are inliers for this model. This is a needed step in determining
+      the quality of a model, as models with the highest number of inliers
+      have the highest quality. As well, by keeping track of which indices
+      are inliers, we can optionally re-fit the model on inliers after
+      selecting the best model.
+
+      :param data: The dataset we are going to determine inliers on.
+
+      :return: Returns a numpy array containing all root indices
+        determined to be inliers.
+
+
+

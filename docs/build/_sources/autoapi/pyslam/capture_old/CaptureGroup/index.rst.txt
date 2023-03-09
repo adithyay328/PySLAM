@@ -1,0 +1,25 @@
+:py:mod:`pyslam.capture_old.CaptureGroup`
+=========================================
+
+.. py:module:: pyslam.capture_old.CaptureGroup
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture_old.CaptureGroup.CaptureGroup
+
+
+
+
+.. py:class:: CaptureGroup(listOfCaptureUIDs)
+
+   A group of capture object UIDs together. Just a type that wraps around a
+   list.
+
+

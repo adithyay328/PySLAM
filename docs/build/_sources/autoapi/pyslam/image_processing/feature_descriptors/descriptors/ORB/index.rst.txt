@@ -1,0 +1,39 @@
+:py:mod:`pyslam.image_processing.feature_descriptors.descriptors.ORB`
+=====================================================================
+
+.. py:module:: pyslam.image_processing.feature_descriptors.descriptors.ORB
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.image_processing.feature_descriptors.descriptors.ORB.ORB
+
+
+
+
+.. py:class:: ORB(descriptorArr: numpy.ndarray)
+
+   Bases: :py:obj:`pyslam.image_processing.feature_descriptors.Descriptor.Descriptor`
+
+   A class representing an ORB descriptor. Distance
+   is computed using hamming distance
+
+   :param descriptorArr: A numpy array containing the
+       contents/data for this descriptor.
+
+   .. py:method:: computeDistance(other: ORB) -> float
+
+      An abstract method that must be implemented that
+      computes the distance between this descriptor's data
+      and another descriptor's data.
+
+      :param other: The descriptor to compute distance to.
+
+
+

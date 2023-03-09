@@ -1,0 +1,28 @@
+:py:mod:`pyslam.image_processing.NormalizedImageFeatures`
+=========================================================
+
+.. py:module:: pyslam.image_processing.NormalizedImageFeatures
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.image_processing.NormalizedImageFeatures.NormalizedImageFeatures
+
+
+
+
+.. py:class:: NormalizedImageFeatures(imageFeatures: pyslam.image_processing.ImageFeatures)
+
+   This class takes in an ImageFeatures object and normalizes all
+   detected keypoints to be suitable for the normalized variation of
+   the DLT and eight point algorithm. As such, it normalizes all points
+   so that they are zero meaned with the average distance from origin being
+   sqrt(2)
+
+

@@ -1,0 +1,37 @@
+:py:mod:`pyslam.odometry.PoseTransformSource`
+=============================================
+
+.. py:module:: pyslam.odometry.PoseTransformSource
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.odometry.PoseTransformSource.PoseTransformSource
+
+
+
+
+.. py:class:: PoseTransformSource
+
+   Bases: :py:obj:`abc.ABC`
+
+   This is an abstract base class that is sub-classed
+   by any class that can return an estimation of pose
+   transformation; with visual odometry these could be
+   Fundamental and Homography matrices, and in the case
+   of VIO this could be an instance of IMU preintegration
+
+   .. py:method:: getTransform() -> pose3d.Transform
+      :abstractmethod:
+
+      Returns the pose transformation
+      corresponding to this object.
+
+
+

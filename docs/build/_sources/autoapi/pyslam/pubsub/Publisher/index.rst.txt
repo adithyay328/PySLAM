@@ -1,0 +1,61 @@
+:py:mod:`pyslam.pubsub.Publisher`
+=================================
+
+.. py:module:: pyslam.pubsub.Publisher
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.pubsub.Publisher.Publisher
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.pubsub.Publisher.T
+
+
+.. py:data:: T
+
+   
+
+.. py:class:: Publisher
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
+
+   An abstract base class that can be subclassed
+   by any class that wants to act as a publisher.
+   Internally uses a multiprocessing Manager,
+   which allows resultant MessageQueues to be used
+   accross threads easily.
+
+   .. py:method:: subscribe() -> pyslam.pubsub.MessageQueue.MessageQueue[T]
+
+      Constructs and returns a message queue
+      that downstream code can listen on for
+      new messages. Maintains a weak-refernce
+      internally, so as soon as downstream code loses
+      the last strong reference it's garbage collected.
+
+      :return: Returns a message queue that downstream code
+        can listen on.
+
+
+   .. py:method:: publish(message: T) -> None
+
+      Iterates over all message queues
+      that haven't yet been garbage collected
+      and publishes the message
+
+
+

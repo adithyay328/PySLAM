@@ -1,0 +1,39 @@
+:py:mod:`pyslam.image_processing.feature_descriptors.extractors.KeypointExtractionScheme`
+=========================================================================================
+
+.. py:module:: pyslam.image_processing.feature_descriptors.extractors.KeypointExtractionScheme
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.image_processing.feature_descriptors.extractors.KeypointExtractionScheme.KeypointExtractionScheme
+
+
+
+
+.. py:class:: KeypointExtractionScheme
+
+   Bases: :py:obj:`abc.ABC`
+
+   An abstract base class that represents
+   a procedure that can extract keypoints
+   from an image.
+
+   .. py:method:: getKeypoints(inImg: pyslam.image_processing.Image.Image) -> List[pyslam.image_processing.feature_descriptors.Keypoint.Keypoint]
+      :abstractmethod:
+
+      An abstract method that subclasses must implement; takes in an
+      image, and returns a list of Keypoints.
+
+      :param inImg: The image to compute Keypoints for.
+
+      :return: Returns a list of Keypoints.
+
+
+

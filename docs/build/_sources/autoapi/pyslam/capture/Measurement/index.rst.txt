@@ -1,0 +1,48 @@
+:py:mod:`pyslam.capture.Measurement`
+====================================
+
+.. py:module:: pyslam.capture.Measurement
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture.Measurement.Measurement
+
+
+
+
+.. py:class:: Measurement(uid: Optional[pyslam.uid.UID], sourceUID: pyslam.uid.UID, timestamp: Optional[datetime.datetime] = None)
+
+   Bases: :py:obj:`abc.ABC`
+
+   A generic base class that represents some kind of
+   capture/measurement from a sensor.
+
+   :param uid: A UID object that uniquely identifies this measurement.
+   :param sourceUID: The UID of the MeasurementSource
+   :param timestamp: A datetime object indicating the time when this
+     measurement was taken. Timezones are always in UTC.
+
+   .. py:property:: uid
+      :type: pyslam.uid.UID
+
+      Returns a copy of the UID for this measurement
+
+   .. py:property:: timestamp
+      :type: datetime.datetime
+
+      Returns a copy of the timestamp of this measurement
+
+   .. py:property:: sourceUID
+      :type: pyslam.uid.UID
+
+      Returns a reference to the MeasurementSource that this measurement
+      came from
+
+

@@ -1,0 +1,38 @@
+:py:mod:`pyslam.capture_old.Capture`
+====================================
+
+.. py:module:: pyslam.capture_old.Capture
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture_old.Capture.Capture
+
+
+
+
+.. py:class:: Capture(sensorWrapperUID: str, uid: Optional[str] = None)
+
+   Bases: :py:obj:`abc.ABC`
+
+   This class represents a "capture" from a Sensor(akin to a single
+   sensor measurement for other kinds of sensors). This is an
+   abstract base class, with specific types of captures being
+   subclassed from here. Subclasses can have extra properties
+   specific to that type of capture, such as a depth map
+
+   .. py:property:: sensorWrapperUID
+      :type: str
+
+
+   .. py:property:: uid
+      :type: str
+
+
+

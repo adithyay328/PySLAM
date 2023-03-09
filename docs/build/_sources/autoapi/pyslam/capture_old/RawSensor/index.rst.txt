@@ -1,0 +1,59 @@
+:py:mod:`pyslam.capture_old.RawSensor`
+======================================
+
+.. py:module:: pyslam.capture_old.RawSensor
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture_old.RawSensor.RawSensor
+
+
+
+
+.. py:class:: RawSensor
+
+   Bases: :py:obj:`abc.ABC`
+
+   An abstract class that implements
+   the core functions of a raw sensor. Specific
+   types of sensors can derive themselves from this.
+
+   .. py:method:: activateSensor()
+      :abstractmethod:
+
+      A function that performs any needed sensor
+      initialization and prepares the sensor
+      for a capture call. As an example, this might
+      tell opencv to start capturing video
+      from a camera so that when the SensorWrapper
+      calls for a capture, it happens as
+      fast as the sensor can manage.
+
+
+   .. py:method:: teardownSensor()
+      :abstractmethod:
+
+      The opposite of startCapture; any cleanup that needs
+      to be done is done here,
+      and this function tells the sensor to stop recording and
+      go into a standby state.
+      In the context of a camera, this could mean telling opencv
+      to stop capturing frames
+      and put the camera into an idle state.
+
+
+   .. py:method:: capture(sensorWrapperUID) -> pyslam.capture_old.Capture.Capture
+      :abstractmethod:
+
+      Returns a Capture object populated with the data
+      the sensor collected.
+
+
+

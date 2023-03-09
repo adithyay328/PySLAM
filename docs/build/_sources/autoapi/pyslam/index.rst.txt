@@ -1,0 +1,30 @@
+:py:mod:`pyslam`
+================
+
+.. py:module:: pyslam
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   capture/index.rst
+   demos/index.rst
+   image_processing/index.rst
+   odometry/index.rst
+   optim/index.rst
+   pubsub/index.rst
+   systems/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   uid/index.rst
+
+

@@ -1,0 +1,16 @@
+:py:mod:`pyslam.optim`
+======================
+
+.. py:module:: pyslam.optim
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   procedures/index.rst
+   ransac/index.rst
+
+

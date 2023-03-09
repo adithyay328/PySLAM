@@ -1,0 +1,82 @@
+:py:mod:`pyslam.optim.ransac.RANSACDataset`
+===========================================
+
+.. py:module:: pyslam.optim.ransac.RANSACDataset
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.optim.ransac.RANSACDataset.RANSACDataset
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.optim.ransac.RANSACDataset.T
+
+
+.. py:data:: T
+
+   
+
+.. py:class:: RANSACDataset(data: List[T], indices: Optional[numpy.ndarray])
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ]
+
+   A Generic class representing a RANSAC dataset.
+   Expects data to be all in-memory as an array, and for
+   that to be passed in; this is just an assumption we make
+   for simplicity.
+
+   :param data: The data we are using in our dataset. We assume this
+     to be an array-like structure.
+   :param indices: The indices corresponding to our data. Allows us to
+     keep track of which datapoints correspond to which dataset indices,
+     which is especially useful once we compute random sub-samples.
+
+     By convention, all paramater indices correspond to the indices in the root dataset;
+     so, for example, if the first item in this sub-slice of the root dataset
+     corresponds to item 5 of the root dataset, the first item in indices
+     should be 4(5th element with zero indexing)
+
+   .. py:method:: __len__() -> int
+
+
+   .. py:method:: getSubsample(indices: numpy.ndarray) -> RANSACDataset[T]
+
+      Given a set of root idx indices, return a new RANSACDataset
+      with all requested data in it
+
+      :param indices: A numpy array containing all root indices
+        whose data we want in the resultant sub-sample. These indices
+        correspond to the root indices, not indices of this object's
+        data array.
+
+      :return: Returns a new RANSACDataset with the specified data.
+
+
+   .. py:method:: getRandomSubsample(numOfPoints: int) -> RANSACDataset[T]
+
+      Vanilla RANSAC, which is the scheme this
+      dataset expects to be involved with, uses
+      random, uniform sub-sampling. This function
+      returns another object of type self, but with
+      less DataPoints in it.
+
+      :param numOfPoints: The number of datapoints to
+        sample for this new sub-sample.
+      :return: Returns a new RANSACDataset with a sub-sample
+        of the data in this datasets
+
+
+

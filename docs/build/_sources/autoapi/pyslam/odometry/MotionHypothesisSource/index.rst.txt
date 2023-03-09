@@ -1,0 +1,50 @@
+:py:mod:`pyslam.odometry.MotionHypothesisSource`
+================================================
+
+.. py:module:: pyslam.odometry.MotionHypothesisSource
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.odometry.MotionHypothesisSource.MotionHypothesisSource
+
+
+
+
+.. py:class:: MotionHypothesisSource
+
+   Bases: :py:obj:`abc.ABC`
+
+   This is an abstract base class that is sub-classed
+   by any class that can return an estimation of motion;
+   with visual odometry these could be Fundamental and
+   Homography matrices, and in the case of VIO this could
+   be an instance of IMU preintegration
+
+   .. py:method:: getTranslation()
+      :abstractmethod:
+
+      Get a translation vector representing the
+      estimated translation from one timestep to another.
+      Scale factor is assumed to be known by all other parties,
+      so this is agnostic of scale.
+
+
+   .. py:method:: getRotation()
+      :abstractmethod:
+
+      Gets a 3x3 rotation matrix representing the change of pose
+      between the source timestep to the destination timestep. Like
+      with translations, we assume that the all parties involved
+      have some convention of how rotations are represented, and so
+      we only restrict the rotation to being represented as a 3x3
+      matrix.
+
+
+

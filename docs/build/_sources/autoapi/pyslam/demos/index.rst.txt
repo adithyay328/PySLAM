@@ -1,0 +1,21 @@
+:py:mod:`pyslam.demos`
+======================
+
+.. py:module:: pyslam.demos
+
+.. autoapi-nested-parse::
+
+   This submodule contains an arrangement of simple demos to test
+   parts of the framework.
+
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   monocular_capture/index.rst
+
+

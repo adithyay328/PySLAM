@@ -1,0 +1,21 @@
+:py:mod:`pyslam.image_processing.feature_descriptors.descriptors`
+=================================================================
+
+.. py:module:: pyslam.image_processing.feature_descriptors.descriptors
+
+.. autoapi-nested-parse::
+
+   This module defines various types of descriptors
+   that we can extract from images.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   ORB/index.rst
+
+

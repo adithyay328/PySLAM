@@ -1,0 +1,63 @@
+:py:mod:`pyslam.observers.Publisher`
+====================================
+
+.. py:module:: pyslam.observers.Publisher
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.observers.Publisher.Publisher
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.observers.Publisher.T
+
+
+.. py:data:: T
+
+   
+
+.. py:class:: Publisher
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
+
+   An abstract base class that can be subclassed
+   by any class that wants to act as a publisher.
+
+   .. py:method:: register(handler: Callable[[T], None]) -> None
+
+      Registers a handler with this publisher. Upon a new
+      message being sent, this handler will be called,
+      allowing it to do anything it needs with the new
+      message object. Note that the handler will be
+      executed in the same thread as the publisher,
+      and so operations that take a long time
+      should be done in a separate process, spawning
+      inside the given handler.
+
+      :param handler: A handler that takes in the message
+        object.
+
+
+   .. py:method:: publish(message: T) -> None
+
+      Iterates over all the listeners/handlers we have,
+      and runs them; these do not run on different threads,
+      and so any operations that take a long time
+      should be moved to a different thread or process inside
+      the given handler.
+
+
+

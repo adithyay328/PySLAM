@@ -1,0 +1,53 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Format Python With Black",
+            "type": "shell",
+            "command": "poetry run black -l 65 .",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Lint Python with Flake8",
+            "type": "shell",
+            "command": "poetry run python3 -m flake8 ./src/",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Lint Python with PyLint",
+            "type": "shell",
+            "command": "cd src; poetry run python3 -m pylint pyslam",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Static Type Checking with mypy",
+            "type": "shell",
+            "command": "cd src/pyslam; poetry run mypy --strict .",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Build Sphinx Documentation",
+            "type": "shell",
+            "command": "cd docs; poetry run sphinx-build -b html source build",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        
+    ]
+}

@@ -1,0 +1,70 @@
+:py:mod:`pyslam.image_processing.feature_descriptors.Keypoint`
+==============================================================
+
+.. py:module:: pyslam.image_processing.feature_descriptors.Keypoint
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.image_processing.feature_descriptors.Keypoint.Keypoint
+
+
+
+
+.. py:class:: Keypoint(coords: numpy.ndarray)
+
+   This class is quite simple; it corresponds to
+   a 2D numpy array, which represents a 2D coordinate
+   in an opencv matrix(an image).
+
+   If the numpy array has 2 numbers in it, we assume
+   the given point to be heterogenous; if 3 numbers
+   are in it, we assume it to be homogenous. This
+   class has functions to do simple conversion
+   to-and-fro heterogenous and homogenous coordinates.
+
+   :param coords: The 2D coordinates of this keypoint,
+     either as a homogenous or heterogenous coordinate;
+     as such, shape should be either (2,) or (3,)
+
+   .. py:property:: coords
+      :type: numpy.ndarray
+
+      Getter for the internal coordinates of this Keypoint,
+      without converting to heterogenous or homogenous.
+
+      :return: A copy of the internal numpy array
+
+   .. py:method:: makeHeterogenous() -> None
+
+      Converts the internal representation of the keypoint into heterogenous for storage
+
+
+   .. py:method:: makeHomogenous() -> None
+
+      Converts the internal representation of the keypoint into homogenous for storage
+
+
+   .. py:method:: asHeterogenous() -> numpy.ndarray
+
+      Returns a heterogenous representation of the internal coordinates
+
+      :return: Returns the internal point array, converted to heterogenous,
+          which means a 2D vector with no scale dimension.
+
+
+   .. py:method:: asHomogenous() -> numpy.ndarray
+
+      Returns a homogenous representation of the internal coordinates
+
+      :return: Returns the internal point array, converted to homogenous,
+          which means a 3D vector with a scale dimension.
+
+
+

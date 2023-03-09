@@ -1,0 +1,31 @@
+:py:mod:`pyslam.capture.CaptureManager`
+=======================================
+
+.. py:module:: pyslam.capture.CaptureManager
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture.CaptureManager.CaptureManager
+
+
+
+
+.. py:class:: CaptureManager
+
+   This class is responsible for getting captures
+   from some set of registered sensors.
+
+   .. py:method:: startCaptureLoop(captureRate: int)
+      :async:
+
+      Function to start the capture loop.
+
+
+
