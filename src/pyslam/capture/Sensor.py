@@ -30,6 +30,9 @@ class Sensor(MeasurementSource[T], Generic[T], ABC):
         # A state variable indicating whether the
         # capture loop is still active or not
         self.__active: bool = False
+        
+        # A process containing the capture loop
+        self.__process: Optional[multiprocessing.Process] = None
 
         # A lock to access the above variable
         self.__lock: synchronize.RLock = multiprocessing.RLock()
@@ -109,48 +112,38 @@ class Sensor(MeasurementSource[T], Generic[T], ABC):
                 desiredNextRunTime - sleepComputeTime
             ).total_seconds()
             time.sleep(max(0, secondsToSleep))
-
-    async def captureLoop(self, captureRate: float) -> None:
+    
+    def startCaptureLoop(self, captureRate: float) -> None:
         """
-        Function to run the capture loop. Execute this
-        using an asyncio task to keep it alive while
-        you want this sensor to capture. Cancellation
-        is also easily handled by simply sending a cancel
-        request to the enclosing task.
+        Starts the capture loop on a new process. This will
+        return immediately, and the capture loop will run
+        in the background.
 
         :param captureRate: The rate at which the underlying
           sensor and this wrapper should get new measurements.
           Units are in measurements per second.
         """
-
-        # Set active to true
         with self.__lock:
             self.__active = True
             self.makeActive(captureRate)
+            self.__process = multiprocessing.Process(
+                target=self.__internalCaptureLoop,
+                args=(captureRate,),
+            )
+            self.__process.start()
+    
+    def stopCaptureLoop(self) -> None:
+        """
+        Stops the capture loop. This is a blocking function,
+        and will not return until the capture loop is stopped.
+        """
+        with self.__lock:
+            self.__active = False
 
-        # This function only runs the capture loop
-        # on its own multiprocessing process, and handles
-        # cleaup afterwards
-        p = multiprocessing.Process(
-            target=self.__internalCaptureLoop,
-            args=(captureRate,),
-        )
+            if self.__process is None:
+                raise ValueError("Capture loop not running")
+            
+            self.__process.join()
+            self.__process = None
 
-        p.start()
-
-        try:
-            # The try block doens't actually do anything, it just waits
-            while True:
-                await asyncio.sleep(0.5)
-
-        except asyncio.CancelledError:
-            # Run all cleanup here; this allows
-            # for a graceful shutdown
-            with self.__lock:
-                self.__active = False
-                self.leaveActive()
-
-            p.join()
-
-            # Re-raise error to propogate it
-            raise
+            self.leaveActive()

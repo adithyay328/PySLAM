@@ -12,7 +12,7 @@ from pyslam.pubsub.MessageQueue import MessageQueue
 T = TypeVar("T")
 
 
-class Publisher(Generic[T], ABC):
+class Publisher(Generic[T]):
     """
     An abstract base class that can be subclassed
     by any class that wants to act as a publisher.
