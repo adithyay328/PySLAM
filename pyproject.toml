@@ -25,6 +25,7 @@ pyglet = "^2.0.5"
 pillow = "^9.4.0"
 scipy = "^1.10.1"
 jax = {extras = ["cpu"], version = "^0.4.6"}
+faiss-cpu = "^1.7.3"
 
 
 [build-system]
