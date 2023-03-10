@@ -30,7 +30,7 @@ class Sensor(MeasurementSource[T], Generic[T], ABC):
         # A state variable indicating whether the
         # capture loop is still active or not
         self.__active: bool = False
-        
+
         # A process containing the capture loop
         self.__process: Optional[multiprocessing.Process] = None
 
@@ -112,7 +112,7 @@ class Sensor(MeasurementSource[T], Generic[T], ABC):
                 desiredNextRunTime - sleepComputeTime
             ).total_seconds()
             time.sleep(max(0, secondsToSleep))
-    
+
     def startCaptureLoop(self, captureRate: float) -> None:
         """
         Starts the capture loop on a new process. This will
@@ -131,7 +131,7 @@ class Sensor(MeasurementSource[T], Generic[T], ABC):
                 args=(captureRate,),
             )
             self.__process.start()
-    
+
     def stopCaptureLoop(self) -> None:
         """
         Stops the capture loop. This is a blocking function,
@@ -142,7 +142,7 @@ class Sensor(MeasurementSource[T], Generic[T], ABC):
 
             if self.__process is None:
                 raise ValueError("Capture loop not running")
-            
+
             self.__process.join()
             self.__process = None
 

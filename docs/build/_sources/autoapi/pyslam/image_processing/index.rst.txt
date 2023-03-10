@@ -25,6 +25,6 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
-   Image/index.rst
+   cv_pillow/index.rst
 
 

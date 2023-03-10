@@ -1,0 +1,31 @@
+:py:mod:`pyslam.visualize.DrawFeatures`
+=======================================
+
+.. py:module:: pyslam.visualize.DrawFeatures
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.visualize.DrawFeatures.drawFeatures
+
+
+
+.. py:function:: drawFeatures(image: PIL.Image.Image, features: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures) -> PIL.Image.Image
+
+   Given an Image and a Features object, draw the features onto
+   the image and return it.
+
+   :param image: The Pillow Image to draw onto
+   :param features: The Image Features to visualize
+
+   :return: Returns a Pillow image with all Keypoints drawn
+       onto it.
+
+

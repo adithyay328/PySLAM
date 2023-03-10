@@ -8,7 +8,10 @@ from pyslam.capture.common.monocular_uncalibrated_camera.MonocularUncalibratedCa
     MonocularUncalibratedCameraMeasurement,
 )
 from pyslam.uid import UID
-from pyslam.image_processing.cv_pillow import PillowColorFormat, arrayToPillowImage
+from pyslam.image_processing.cv_pillow import (
+    PillowColorFormat,
+    arrayToPillowImage,
+)
 
 
 class MonocularUncalibratedFileCamera(
@@ -30,7 +33,7 @@ class MonocularUncalibratedFileCamera(
     :param openCVColorCode: The opencv color conversion code that, when used
       with cv2.cvtColor, takes the mat off the sensor and outputs a matrix of the correct
       color format. "Correct" is based on what you passed in for "pillowTargetColor";
-      if you passed in "L", you need a conversion code to convert to grayscale, 
+      if you passed in "L", you need a conversion code to convert to grayscale,
       and if you passed in "RGB", you need a conversion code to convert to RGB.
       Pass in a -1 if nothing needs to be done, and the color is already correct.
     :param uid: An optional UID object to use as this Sensor's UID.
@@ -39,14 +42,16 @@ class MonocularUncalibratedFileCamera(
     def __init__(
         self,
         fName: str,
-        pillowTargetColor : PillowColorFormat,
+        pillowTargetColor: PillowColorFormat,
         openCVColorCode: int,
         uid: Optional[UID] = None,
     ) -> None:
         super().__init__(uid)
 
         self.fName: str = fName
-        self.pillowTargetColor : PillowColorFormat = pillowTargetColor
+        self.pillowTargetColor: PillowColorFormat = (
+            pillowTargetColor
+        )
         self.openCVColorCode: int = openCVColorCode
 
         # This will contain a cv2 VideoCapture when the sensor
@@ -82,8 +87,14 @@ class MonocularUncalibratedFileCamera(
                 f"CV2 failed to capture a frame from camera at {self.fName}"
             )
         else:
-            collorCorrectArray = cv2.cvtColor(frame, self.openCVColorCode) if self.openCVColorCode != -1 else frame
-            image: Image = arrayToPillowImage(collorCorrectArray, self.pillowTargetColor)
+            collorCorrectArray = (
+                cv2.cvtColor(frame, self.openCVColorCode)
+                if self.openCVColorCode != -1
+                else frame
+            )
+            image: Image = arrayToPillowImage(
+                collorCorrectArray, self.pillowTargetColor
+            )
 
             newMeasurement: MonocularUncalibratedCameraMeasurement = MonocularUncalibratedCameraMeasurement(
                 None, self._uid, image, None

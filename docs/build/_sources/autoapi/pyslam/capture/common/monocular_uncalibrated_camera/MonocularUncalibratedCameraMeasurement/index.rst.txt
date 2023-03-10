@@ -17,7 +17,7 @@ Classes
 
 
 
-.. py:class:: MonocularUncalibratedCameraMeasurement(uid: Optional[pyslam.uid.UID], sourceUID: pyslam.uid.UID, image: pyslam.image_processing.Image.Image, timestamp: Optional[datetime.datetime] = None)
+.. py:class:: MonocularUncalibratedCameraMeasurement(uid: Optional[pyslam.uid.UID], sourceUID: pyslam.uid.UID, image: PIL.Image.Image, timestamp: Optional[datetime.datetime] = None)
 
    Bases: :py:obj:`pyslam.capture.Measurement`
 
@@ -28,7 +28,7 @@ Classes
        measurement
    :param sourceUID: The UID of the MeasurementSource that
        yielded this measurement.
-   :param image: The image object representing the image for
+   :param image: The pillow image object representing the image for
        this measurement.
    :param timestamp: If already known, represents the timestamp
        of this measurement.

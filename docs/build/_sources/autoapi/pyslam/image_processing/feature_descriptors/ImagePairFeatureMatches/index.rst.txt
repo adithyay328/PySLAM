@@ -1,0 +1,55 @@
+:py:mod:`pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches`
+=============================================================================
+
+.. py:module:: pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches
+
+.. autoapi-nested-parse::
+
+   This module contains types and logic related to computing
+   matching pairs of Features accross Images.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match
+   pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.ImagePairMatches
+
+
+
+
+.. py:class:: Match(imgOneIdx: int, imgTwoIdx: int)
+
+   A basic type representing a Match found between 2 images.
+   One image needs to be determined as image one, and the other
+   is image two. This object contains the indices in both images.
+
+   :param imgOneIdx: The index of the matching descriptor in the first
+       image.
+   :param imgTwoIdx: The index of the matching descriptor in the second
+       image.
+
+
+.. py:class:: ImagePairMatches(imageFeaturesOne: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures, imageFeaturesTwo: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures)
+
+   A class that computes matches of Features across two images.
+   Uses FLANN from OpenCV internally.
+
+   :param imageFeaturesOne: The ImageFeatures object corresponding
+       to the first image.
+   :param imageFeaturesTwo: The ImageFeatures object corresponding
+       to the second image.
+
+   .. py:method:: computeMatches() -> None
+
+      Runs the internal matching logic to compute matches
+      accross images.
+
+
+

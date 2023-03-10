@@ -1,0 +1,21 @@
+:py:mod:`pyslam.demos.monocular_features`
+=========================================
+
+.. py:module:: pyslam.demos.monocular_features
+
+.. autoapi-nested-parse::
+
+   Contains logic related to a demo showing ORB features being detected
+   against a series of monocular image frames.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   monocular_features/index.rst
+
+

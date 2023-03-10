@@ -17,6 +17,7 @@ Subpackages
    optim/index.rst
    pubsub/index.rst
    systems/index.rst
+   visualize/index.rst
 
 
 Submodules

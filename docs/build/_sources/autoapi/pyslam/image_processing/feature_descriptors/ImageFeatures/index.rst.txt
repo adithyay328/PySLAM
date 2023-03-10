@@ -16,15 +16,61 @@ Classes
 
 
 
+Functions
+~~~~~~~~~
 
-.. py:class:: ImageFeatures(inputImage: pyslam.image_processing.Image.Image, featureType: FeatureType)
+.. autoapisummary::
+
+   pyslam.image_processing.feature_descriptors.ImageFeatures.normalizeKeypointMatrix
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.image_processing.feature_descriptors.ImageFeatures.T
+
+
+.. py:data:: T
+
+   
+
+.. py:function:: normalizeKeypointMatrix(inMat: jax.numpy.ndarray) -> Tuple[jax.numpy.ndarray, jax.numpy.ndarray]
+
+   Given an input keypoint matrix, applies normalization, and returns a tuple of
+   (normalized points, normalization matrix.)
+
+   :param inMat: An input matrix of all keypoints, as heterogenous points.
+       inMat[0] should be an array with 2 elements, which are the x and y coordinate
+       of the first keypoint.
+
+   :return: Returns a tuple of jnp arrays. The first is the normalized array containing all
+       kepoint coordinates(same format as input paramater),
+       and the second is the 3x3 homogenous matrix that you could use to normalize
+       all 2D points in the way we did internally. Invert it to un-normalize.
+
+
+.. py:class:: ImageFeatures(inputImage: PIL.Image.Image, keypointExtractor: pyslam.image_processing.feature_descriptors.extractors.KeypointExtractor.KeypointExtractor, descriptorExtractor: pyslam.image_processing.feature_descriptors.extractors.DescriptorExtractor.DescriptorExtractor[T])
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ]
 
    This class is responsible for all computations related to
-   keypoints and descriptors for an image. It .
+   keypoints and descriptors for an image. It takes in extractors
+   for keypoints and descriptors respectively, stores them internally,
+   and provides common utilities such as keypoint normalization.
 
-   .. py:method:: __computeORBDescriptors()
+   :param inputImage: The image to run computations against.
+   :param keypointExtractor: An extractor that can extract keypoints from our image
+   :param descriptorExtractor: An extractor that can extract descriptors from our image,
+     given the previously computed keypoints.
 
-      Internal function to compute ORB descriptors for this image
+   .. py:method:: buildNormalizedKeypoints() -> None
+
+      Takes the current list of keypoints,
+      and builds the corresponding
+      set of normalizad keypoints.
 
 
 

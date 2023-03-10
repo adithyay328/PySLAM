@@ -1,0 +1,23 @@
+:py:mod:`pyslam.visualize`
+==========================
+
+.. py:module:: pyslam.visualize
+
+.. autoapi-nested-parse::
+
+   This module contains utilities related to visualization.
+   The __init__ file also does initialization and bookkeeping for
+   any components that need that
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   DrawFeatures/index.rst
+   PyGameFrameWindow/index.rst
+
+

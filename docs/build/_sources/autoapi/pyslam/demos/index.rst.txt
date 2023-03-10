@@ -17,5 +17,6 @@ Subpackages
    :maxdepth: 3
 
    monocular_capture/index.rst
+   monocular_features/index.rst
 
 

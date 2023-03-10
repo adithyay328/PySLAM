@@ -13,20 +13,8 @@ Functions
 
 .. autoapisummary::
 
-   pyslam.demos.monocular_capture.monocular_capture.pygameUpdater
    pyslam.demos.monocular_capture.monocular_capture.run
 
-
-
-.. py:function:: pygameUpdater(msgQueue: pyslam.pubsub.MessageQueue.MessageQueue[pyslam.capture.common.monocular_uncalibrated_camera.MonocularUncalibratedCameraMeasurement]) -> None
-
-   A function that spawns a pygame window, and blits
-   new opencv frames onto it as they are made available
-   by the underlying camera.
-
-   :msgQueue: The message queue that this thread
-     will wait on, updating as new messages are
-     made available.
 
 
 .. py:function:: run() -> None

@@ -30,6 +30,7 @@ Submodules
 
    Descriptor/index.rst
    ImageFeatures/index.rst
+   ImagePairFeatureMatches/index.rst
    Keypoint/index.rst
 
 

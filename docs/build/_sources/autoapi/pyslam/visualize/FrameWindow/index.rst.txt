@@ -1,0 +1,50 @@
+:py:mod:`pyslam.visualize.FrameWindow`
+======================================
+
+.. py:module:: pyslam.visualize.FrameWindow
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.visualize.FrameWindow.FrameWindow
+
+
+
+
+.. py:class:: FrameWindow(publisher: pyslam.pubsub.Publisher.Publisher[cv2.Mat])
+
+   This class wraps around a PyGame Window, and allows client code
+   to push frames to the window using a Publisher. Makes it easy
+   to visualize any 2D results that can be seen on an image as-is,
+   like opencv decriptors.
+
+   :param publisher: The publisher we are going to subscribe to. We expect
+       all opencv mat's sent on its message queues to be of format
+       BGR; even for grayscale images, make sure to convert
+       to BGR so that the internal conversion
+       logic remains consistent.
+
+   .. py:method:: loop() -> None
+
+      The actual loop we'll run in a different process. Waits
+      on the message queue we got from the source publisher, and re-paints
+      the window every time we get a frame
+
+
+   .. py:method:: startLoop() -> None
+
+      Starts the frame display loop.
+
+
+   .. py:method:: endLoop() -> None
+
+      Ends the frame display loop and cleans up.
+
+
+

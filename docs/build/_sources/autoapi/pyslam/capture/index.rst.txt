@@ -166,18 +166,21 @@ Attributes
         we should pull from the sensor per second.
 
 
-   .. py:method:: captureLoop(captureRate: float) -> None
-      :async:
+   .. py:method:: startCaptureLoop(captureRate: float) -> None
 
-      Function to run the capture loop. Execute this
-      using an asyncio task to keep it alive while
-      you want this sensor to capture. Cancellation
-      is also easily handled by simply sending a cancel
-      request to the enclosing task.
+      Starts the capture loop on a new process. This will
+      return immediately, and the capture loop will run
+      in the background.
 
       :param captureRate: The rate at which the underlying
         sensor and this wrapper should get new measurements.
         Units are in measurements per second.
+
+
+   .. py:method:: stopCaptureLoop() -> None
+
+      Stops the capture loop. This is a blocking function,
+      and will not return until the capture loop is stopped.
 
 
 

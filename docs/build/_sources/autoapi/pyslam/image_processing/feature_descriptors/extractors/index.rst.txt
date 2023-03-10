@@ -11,13 +11,22 @@
 
 
 
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   end2end/index.rst
+
+
 Submodules
 ----------
 .. toctree::
    :titlesonly:
    :maxdepth: 1
 
-   DescriptorExtractionScheme/index.rst
-   KeypointExtractionScheme/index.rst
+   DescriptorExtractor/index.rst
+   KeypointExtractor/index.rst
 
 

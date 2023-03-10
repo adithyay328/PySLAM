@@ -1,0 +1,24 @@
+:py:mod:`pyslam.demos.monocular_features.monocular_features`
+============================================================
+
+.. py:module:: pyslam.demos.monocular_features.monocular_features
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.demos.monocular_features.monocular_features.run
+
+
+
+.. py:function:: run() -> None
+
+   Runs the monocular features demo.
+
+

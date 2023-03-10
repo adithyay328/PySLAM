@@ -31,7 +31,7 @@ Attributes
 
 .. py:class:: Publisher
 
-   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ]
 
    An abstract base class that can be subclassed
    by any class that wants to act as a publisher.

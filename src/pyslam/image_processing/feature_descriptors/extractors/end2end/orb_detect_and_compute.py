@@ -51,8 +51,8 @@ class ORB_Detect_And_Compute(
         des: np.ndarray = np.array([])
 
         # Convert image to a black and white matrix
-        bwPIL : Image = inImg.convert("L")
-        bwImgMat : cv2.Mat = pillowToArray(bwPIL)
+        bwPIL: Image = inImg.convert("L")
+        bwImgMat: cv2.Mat = pillowToArray(bwPIL)
 
         kp, des = self.orb.detectAndCompute(bwImgMat, None)
 

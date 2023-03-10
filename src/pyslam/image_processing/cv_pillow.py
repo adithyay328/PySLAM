@@ -10,14 +10,20 @@ from PIL import Image
 import cv2
 import numpy as np
 
+
 class PillowColorFormat(Enum):
     """An Enum defining the 2 color formats
     we work with in Pillow; RGB and "L"(grayscale)
     """
+
     RGB = 0
     L = 1
 
-def arrayToPillowImage(inArr : Union[cv2.Mat, np.ndarray], colorFormat : PillowColorFormat) -> Image.Image:
+
+def arrayToPillowImage(
+    inArr: Union[cv2.Mat, np.ndarray],
+    colorFormat: PillowColorFormat,
+) -> Image.Image:
     """
     Given an input cv2 Mat or numpy array(they're the same under the hood),
     return a Pillow image with the same contents.
@@ -33,10 +39,12 @@ def arrayToPillowImage(inArr : Union[cv2.Mat, np.ndarray], colorFormat : PillowC
     elif colorFormat == PillowColorFormat.L:
         return Image.fromarray(inArr, "L")
     else:
-        raise ValueError(f"Invalid value of PillowColorFormat {colorFormat}")
-    
+        raise ValueError(
+            f"Invalid value of PillowColorFormat {colorFormat}"
+        )
 
-def pillowToArray(inImg : Image.Image) -> np.ndarray:
+
+def pillowToArray(inImg: Image.Image) -> np.ndarray:
     """
     Given an input Pillow image, returns a numpy array
     with the same contents as the image.

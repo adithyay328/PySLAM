@@ -10,6 +10,7 @@ from pyslam.pubsub.MessageQueue import MessageQueue
 from pyslam.pubsub.Publisher import Publisher
 from pyslam.visualize.PyGameFrameWindow import PyGameFrameWindow
 
+
 def run() -> None:
     """
     Runs the monocular capture demo.
@@ -33,10 +34,12 @@ def run() -> None:
     ] = cameraSensor.subscribe()
 
     # Create an image publisher
-    imagePublisher : Publisher[Image] = Publisher[Image]()
+    imagePublisher: Publisher[Image] = Publisher[Image]()
 
     # Spawn the pygame window
-    pyGameFrameWindow : PyGameFrameWindow = PyGameFrameWindow(imagePublisher.subscribe())
+    pyGameFrameWindow: PyGameFrameWindow = PyGameFrameWindow(
+        imagePublisher.subscribe()
+    )
 
     # Start the sensor capture loop
     cameraSensor.startCaptureLoop(60)
@@ -46,14 +49,15 @@ def run() -> None:
 
     # Convert the MonocularUncalibratedCameraMeasurement to a PIL Image
     while True:
-        nextCamMeasure: Optional[MonocularUncalibratedCameraMeasurement] = (
-            msgQueue.listen(block=True, timeout=-1)
-        )
+        nextCamMeasure: Optional[
+            MonocularUncalibratedCameraMeasurement
+        ] = msgQueue.listen(block=True, timeout=-1)
 
         assert nextCamMeasure is not None
 
         # Publish the image
         imagePublisher.publish(nextCamMeasure.image)
+
 
 if __name__ == "__main__":
     run()

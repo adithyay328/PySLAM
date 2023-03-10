@@ -1,0 +1,61 @@
+:py:mod:`pyslam.image_processing.feature_descriptors.extractors.end2end.orb_detect_and_compute`
+===============================================================================================
+
+.. py:module:: pyslam.image_processing.feature_descriptors.extractors.end2end.orb_detect_and_compute
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.image_processing.feature_descriptors.extractors.end2end.orb_detect_and_compute.ORB_Detect_And_Compute
+
+
+
+
+.. py:class:: ORB_Detect_And_Compute(numPoints: int)
+
+   Bases: :py:obj:`pyslam.image_processing.feature_descriptors.extractors.DescriptorExtractor.DescriptorExtractor`\ [\ :py:obj:`pyslam.image_processing.feature_descriptors.descriptors.ORB.ORB`\ ], :py:obj:`pyslam.image_processing.feature_descriptors.extractors.KeypointExtractor.KeypointExtractor`
+
+   An end-to-end ORB extractor that uses
+   opencv's orb.detectAndCompute internally.
+
+   :param numPoints: The number of keypoints to try and find
+       and describe. No guarantee this number will actually be
+       computed however.
+
+   .. py:method:: __compute(inImg: PIL.Image.Image) -> None
+
+      An internal function that computes and saves keypoints and
+      their corresponding descriptors. Since this is an end-to-end
+      extractor these are done together, but since the API treats these
+      as separate steps, simply return them separately.
+
+
+   .. py:method:: getKeypoints(inImg: PIL.Image.Image) -> List[pyslam.image_processing.feature_descriptors.Keypoint.Keypoint]
+
+      Computes keypoints for the given image.
+
+      :param inImg: The image to compute Keypoints for.
+
+      :return: Returns a list of Keypoints.
+
+
+   .. py:method:: getDescriptors(inImg: PIL.Image.Image, inKeypoints: List[pyslam.image_processing.feature_descriptors.Keypoint.Keypoint]) -> List[pyslam.image_processing.feature_descriptors.descriptors.ORB.ORB]
+
+      Returns all descriptors we computed internally.
+
+      :param inImg: The image to compute Descriptors for.
+      :param inKeypoints: The list of Keypoints to compute
+          descriptors for.
+
+      :return: Returns a list of Descriptors. We expect it to have
+          the same size as inKeypoints, with the Nth descriptor
+          describing the Nth keypoint.
+
+
+
