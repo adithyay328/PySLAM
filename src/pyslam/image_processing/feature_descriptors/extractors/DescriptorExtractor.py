@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List, TypeVar, Generic
 
+from PIL.Image import Image
+
 from pyslam.image_processing.feature_descriptors.Descriptor import (
     Descriptor,
 )
 from pyslam.image_processing.feature_descriptors.Keypoint import (
     Keypoint,
 )
-from pyslam.image_processing.Image import Image
 
 T = TypeVar("T", bound=Descriptor)
 

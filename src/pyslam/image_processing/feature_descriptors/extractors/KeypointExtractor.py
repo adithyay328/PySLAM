@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import List
 
+from PIL.Image import Image
+
 from pyslam.image_processing.feature_descriptors.Keypoint import (
     Keypoint,
 )
-from pyslam.image_processing.Image import Image
 
 
 class KeypointExtractor(ABC):

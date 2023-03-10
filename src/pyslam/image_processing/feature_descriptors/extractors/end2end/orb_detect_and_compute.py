@@ -2,6 +2,7 @@ from typing import List
 
 import cv2
 import numpy as np
+from PIL.Image import Image
 
 from pyslam.image_processing.feature_descriptors.extractors.DescriptorExtractor import (
     DescriptorExtractor,
@@ -15,7 +16,7 @@ from pyslam.image_processing.feature_descriptors.descriptors.ORB import (
 from pyslam.image_processing.feature_descriptors.Keypoint import (
     Keypoint,
 )
-from pyslam.image_processing.Image import Image
+from pyslam.image_processing.cv_pillow import pillowToArray
 
 
 class ORB_Detect_And_Compute(
@@ -49,7 +50,11 @@ class ORB_Detect_And_Compute(
         kp: List[cv2.KeyPoint] = []
         des: np.ndarray = np.array([])
 
-        kp, des = self.orb.detectAndCompute(inImg.bwImgMat, None)
+        # Convert image to a black and white matrix
+        bwPIL : Image = inImg.convert("L")
+        bwImgMat : cv2.Mat = pillowToArray(bwPIL)
+
+        kp, des = self.orb.detectAndCompute(bwImgMat, None)
 
         # Convert both into PySLAM types
         for keyP in kp:

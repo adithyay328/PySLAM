@@ -1,7 +1,7 @@
 from typing import Generic, TypeVar, List
 import weakref
 
-from pyslam.image_processing.Image import Image
+from PIL.Image import Image
 from pyslam.image_processing.feature_descriptors.extractors.DescriptorExtractor import (
     DescriptorExtractor,
 )
