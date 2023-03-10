@@ -473,6 +473,59 @@ plugins = ["setuptools"]
 requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
+name = "jax"
+version = "0.4.6"
+description = "Differentiate, compile, and transform Numpy code."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "jax-0.4.6.tar.gz", hash = "sha256:d06ea8fba4ed315ec55110396058cb48c8edb2ab0b412f28c8a123beee9e58ab"},
+]
+
+[package.dependencies]
+jaxlib = {version = "0.4.6", optional = true, markers = "extra == \"cpu\""}
+numpy = ">=1.20"
+opt_einsum = "*"
+scipy = ">=1.5"
+
+[package.extras]
+australis = ["protobuf (>=3.13,<4)"]
+ci = ["jaxlib (==0.4.4)"]
+cpu = ["jaxlib (==0.4.6)"]
+cuda = ["jaxlib (==0.4.6+cuda11.cudnn86)"]
+cuda11-cudnn82 = ["jaxlib (==0.4.6+cuda11.cudnn82)"]
+cuda11-cudnn86 = ["jaxlib (==0.4.6+cuda11.cudnn86)"]
+minimum-jaxlib = ["jaxlib (==0.4.4)"]
+tpu = ["jaxlib (==0.4.6)", "libtpu-nightly (==0.1.dev20230309)", "requests"]
+
+[[package]]
+name = "jaxlib"
+version = "0.4.6"
+description = "XLA library for JAX"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "jaxlib-0.4.6-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:c42ea44671f1e560d63f742c787a65744f1efd0a20bbfe177e9d3e8bd7cece92"},
+    {file = "jaxlib-0.4.6-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:1393968b0f808c1769195990f1ea138903bc4012bdffb850eecd10e113b8fca8"},
+    {file = "jaxlib-0.4.6-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:e18e3d5fd5d1aee94bd97791c7157ea7fd682f5eb8a04a8b1a3b0ed011175892"},
+    {file = "jaxlib-0.4.6-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:f7233463e1f79b330d3a1e12629e1bbc334acf6f5be22a0af244a2ed544afdfe"},
+    {file = "jaxlib-0.4.6-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:ed2f504f0d48a1e727322aa5baae0ec0405fc5fcb5e4135bb15740978535b5e0"},
+    {file = "jaxlib-0.4.6-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:34b0b4e41e185fba36b81cf68d4979503afba4640bf29b7f6709b17b3c3c55bc"},
+    {file = "jaxlib-0.4.6-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:2949b6b6b77f296982b42ad2c6350526baf47b0f105118a65a9e9b2093de6572"},
+    {file = "jaxlib-0.4.6-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:3be2b70104f9547a3281e5c06dfafe1be27c4927d6b62b69a55d26977cd03e15"},
+    {file = "jaxlib-0.4.6-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:554fc7300c61d76b5996145bd33a8dd19d60c49e57ad38686057d719b1d69d38"},
+    {file = "jaxlib-0.4.6-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:cdfbff50bae46065d2fac6250260077e2c554df52252c45cb5ca949bed378b6f"},
+    {file = "jaxlib-0.4.6-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:399d83e16a35d66693b27951b87be566d91e47c7f4ac1fc5a362536a7b9c29cc"},
+    {file = "jaxlib-0.4.6-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:4079c42247db33c69f10710b6a5a570ed89d773e0e549612fadba3d06fe4773c"},
+]
+
+[package.dependencies]
+numpy = ">=1.20"
+scipy = ">=1.5"
+
+[[package]]
 name = "jinja2"
 version = "3.1.2"
 description = "A very fast and expressive template engine."
@@ -966,6 +1019,25 @@ numpy = [
     {version = ">=1.17.3", markers = "python_version >= \"3.8\""},
     {version = ">=1.22.0", markers = "python_version >= \"3.11\""},
 ]
+
+[[package]]
+name = "opt-einsum"
+version = "3.3.0"
+description = "Optimizing numpys einsum function"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "opt_einsum-3.3.0-py3-none-any.whl", hash = "sha256:2455e59e3947d3c275477df7f5205b30635e266fe6dc300e3d9f9646bfcea147"},
+    {file = "opt_einsum-3.3.0.tar.gz", hash = "sha256:59f6475f77bbc37dcf7cd748519c0ec60722e91e63ca114e68821c0c54a46549"},
+]
+
+[package.dependencies]
+numpy = ">=1.7"
+
+[package.extras]
+docs = ["numpydoc", "sphinx (==1.2.3)", "sphinx-rtd-theme", "sphinxcontrib-napoleon"]
+tests = ["pytest", "pytest-cov", "pytest-pep8"]
 
 [[package]]
 name = "packaging"
@@ -1919,4 +1991,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.12"
-content-hash = "e2baa62f3c9cd66f4a1fa3ea75b5e606d6d29bdf0399392efe22c7326779cdbd"
+content-hash = "8e35d011e57db46ab6da15b747383a033b5415c80aa8b1b3f2693edb009a840c"
