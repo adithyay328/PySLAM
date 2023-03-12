@@ -75,7 +75,7 @@ Attributes
 
 .. py:class:: MeasurementSource(uid: Optional[pyslam.uid.UID])
 
-   Bases: :py:obj:`pyslam.pubsub.Publisher.Publisher`\ [\ :py:obj:`T`\ ], :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
+   Bases: :py:obj:`pyslam.pubsub.Publisher`\ [\ :py:obj:`T`\ ], :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
 
    An abstract base class representing a source for
    Measurements; this could be a sensor, a ROS topic, a

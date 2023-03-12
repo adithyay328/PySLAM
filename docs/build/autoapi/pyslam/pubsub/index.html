@@ -211,19 +211,15 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l3 current has-children current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="MessageQueue/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub.MessageQueue</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Publisher/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub.Publisher</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="../systems/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.systems</span></code></a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../visualize/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../visualize/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../visualize/DrawFeatures/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.DrawFeatures</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../visualize/PyGameFrameWindow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.PyGameFrameWindow</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../capture/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.capture</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../odometry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.odometry</span></code></a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../uid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.uid</span></code></a></li>
 </ul>
 </li>
@@ -276,17 +272,138 @@ implemented as a series of publishers and subscribers.</p>
 <p>The way this is implemented in this module is really simple.
 Publishers indicate what kind of message they publish,
 and subscribers can chose to subscribe.</p>
-<p>When they subscribe, they are simply given an instance of a
-MessageQueue, and can listen for new messages to get published
-messages.</p>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="MessageQueue/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub.MessageQueue</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="Publisher/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub.Publisher</span></code></a></li>
-</ul>
+<p>When client code subscribes, they are simply given
+an instance of a MessageQueue, and can listen for
+new messages to get published messages.</p>
+<p>One more piece of this module, which is not a standard
+part of the pub/sub design pattern, is the “Reactor”
+class; this is an interface that allows us to easily
+respond to incoming Messages as a listener, while also
+publishing its results as a Publisher(a Reactor is both
+a publisher and a listener).</p>
+<p>This is something that would be really useful for
+intermediate parts of the pipeline, where we want
+to wait for a message to come in, do some processing,
+and then publish new results in response.</p>
+<p>For example, this would be useful for the feature detection
+portion of a V-SLAM pipeline; the reactor would listen for new
+camera capture Measurements, then run its feature detection
+on the given images, and then publish its detected Features
+as a Publisher. Then downstream tasks can also act as reactors,
+building a full pipeline like that.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">#</a></h3>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyslam.pubsub.MessageQueue" title="pyslam.pubsub.MessageQueue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageQueue</span></code></a></p></td>
+<td><p>A MessageQueue with typing on received messages.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyslam.pubsub.Publisher" title="pyslam.pubsub.Publisher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Publisher</span></code></a></p></td>
+<td><p>A base class that can be subclassed</p></td>
+</tr>
+</tbody>
+</table>
 </div>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading">#</a></h3>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyslam.pubsub.T" title="pyslam.pubsub.T"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py data">
+<dt class="sig sig-object py" id="pyslam.pubsub.T">
+<span class="sig-prename descclassname"><span class="pre">pyslam.pubsub.</span></span><span class="sig-name descname"><span class="pre">T</span></span><a class="headerlink" href="#pyslam.pubsub.T" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyslam.pubsub.MessageQueue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyslam.pubsub.</span></span><span class="sig-name descname"><span class="pre">MessageQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MessageQueue.__init__.queue</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyslam.pubsub.MessageQueue" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Generic</span></code>[<a class="reference internal" href="#pyslam.pubsub.T" title="pyslam.pubsub.T"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code></a>]</p>
+<p>A MessageQueue with typing on received messages.
+Queues must be passed in, as they are expectd to be
+proxy objects managed by a Multiprocessing Manager. Without that,
+they can’t be pickled, which restricts their use.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyslam.pubsub.MessageQueue.publish">
+<span class="sig-name descname"><span class="pre">publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyslam.pubsub.MessageQueue.publish" title="Permalink to this definition">#</a></dt>
+<dd><p>Publish a message on the internal thread queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> – The message to publish on this queue.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyslam.pubsub.MessageQueue.listen">
+<span class="sig-name descname"><span class="pre">listen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#pyslam.pubsub.MessageQueue.listen" title="Permalink to this definition">#</a></dt>
+<dd><p>Listens on the internal message queue for a new Message.
+Can be blocking or non-blocking, based on whether</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block</strong> – Whether or not to block indefiniely
+while listening. If false and no message is on the queue, returns a non-type</p></li>
+<li><p><strong>timeout</strong> – If block=True, limits the max number of seconds we will
+wait before returning None. If block=False, does nothing. Set to a
+negative number to wait indefinitely</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the first message we receive from the queue if
+block = True; if block = False, will return a message if one
+is on the queue, and a None type otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyslam.pubsub.Publisher">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyslam.pubsub.</span></span><span class="sig-name descname"><span class="pre">Publisher</span></span><a class="headerlink" href="#pyslam.pubsub.Publisher" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Generic</span></code>[<a class="reference internal" href="#pyslam.pubsub.T" title="pyslam.pubsub.T"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code></a>]</p>
+<p>A base class that can be subclassed
+by any class that wants to act as a publisher.
+Internally uses a multiprocessing Manager,
+which allows resultant MessageQueues to be used
+accross threads easily.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyslam.pubsub.Publisher.subscribe">
+<span class="sig-name descname"><span class="pre">subscribe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyslam.pubsub.MessageQueue" title="pyslam.pubsub.MessageQueue"><span class="pre">MessageQueue</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pyslam.pubsub.Publisher.subscribe" title="Permalink to this definition">#</a></dt>
+<dd><p>Constructs and returns a message queue
+that downstream code can listen on for
+new messages. Maintains a weak-refernce
+internally, so as soon as downstream code loses
+the last strong reference it’s garbage collected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns a message queue that downstream code
+can listen on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyslam.pubsub.Publisher.publish">
+<span class="sig-name descname"><span class="pre">publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyslam.pubsub.Publisher.publish" title="Permalink to this definition">#</a></dt>
+<dd><p>Iterates over all message queues
+that haven’t yet been garbage collected
+and publishes the message</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 </section>
 </section>
 
@@ -328,7 +445,35 @@ messages.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub</span></code></a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#attributes">Attributes</a><ul>
+<li><a class="reference internal" href="#pyslam.pubsub.T"><code class="docutils literal notranslate"><span class="pre">T</span></code></a></li>
+<li><a class="reference internal" href="#pyslam.pubsub.MessageQueue"><code class="docutils literal notranslate"><span class="pre">MessageQueue</span></code></a><ul>
+<li><a class="reference internal" href="#pyslam.pubsub.MessageQueue.publish"><code class="docutils literal notranslate"><span class="pre">MessageQueue.publish()</span></code></a></li>
+<li><a class="reference internal" href="#pyslam.pubsub.MessageQueue.listen"><code class="docutils literal notranslate"><span class="pre">MessageQueue.listen()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pyslam.pubsub.Publisher"><code class="docutils literal notranslate"><span class="pre">Publisher</span></code></a><ul>
+<li><a class="reference internal" href="#pyslam.pubsub.Publisher.subscribe"><code class="docutils literal notranslate"><span class="pre">Publisher.subscribe()</span></code></a></li>
+<li><a class="reference internal" href="#pyslam.pubsub.Publisher.publish"><code class="docutils literal notranslate"><span class="pre">Publisher.publish()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pyslam.pubsub.T">T</a></li>
+<li><a class="reference internal" href="#pyslam.pubsub.MessageQueue">MessageQueue</a><ul>
+<li><a class="reference internal" href="#pyslam.pubsub.MessageQueue.publish">publish</a></li>
+<li><a class="reference internal" href="#pyslam.pubsub.MessageQueue.listen">listen</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pyslam.pubsub.Publisher">Publisher</a><ul>
+<li><a class="reference internal" href="#pyslam.pubsub.Publisher.subscribe">subscribe</a></li>
+<li><a class="reference internal" href="#pyslam.pubsub.Publisher.publish">publish</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

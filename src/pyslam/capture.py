@@ -14,7 +14,7 @@ import time
 from datetime import datetime, timezone, timedelta
 
 from pyslam.uid import UID
-from pyslam.pubsub.Publisher import Publisher
+from pyslam.pubsub import Publisher
 
 # This WeakDict serves as a lookup for
 # Measurements, MeasurementSources and Sensors.

@@ -96,9 +96,9 @@ class ImageFeatures(Generic[T]):
         self.keypointExtractor: KeypointExtractor = (
             keypointExtractor
         )
-        self.descriptorExtractor: DescriptorExtractor[T] = (
-            descriptorExtractor
-        )
+        self.descriptorExtractor: DescriptorExtractor[
+            T
+        ] = descriptorExtractor
 
         # Keypoints from the extractor
         self.keypoints: List[
@@ -115,7 +115,7 @@ class ImageFeatures(Generic[T]):
         self.normalizedKeypoints: List[Keypoint] = []
         # JNP array that goes from un-normalized to
         # normalized keypoints
-        self.normalizeMat : jnp.ndarray = jnp.array([])
+        self.normalizeMat: jnp.ndarray = jnp.array([])
 
     def buildNormalizedKeypoints(self) -> None:
         """
@@ -127,23 +127,26 @@ class ImageFeatures(Generic[T]):
             raise ValueError(
                 "Normalized keypoints is already populated!"
             )
-        
+
         # TODO Right now, we're converting keypoints from a list
-        # of objects to a JNP array, doing JNP JIT operations, and 
-        # then converting back to the keypoint object representation; 
-        # consider just making the numpy array the standard form. More 
-        # space efficient and no need for conversions like this, but 
-        # less explicit than a specific type. I guess a question between 
+        # of objects to a JNP array, doing JNP JIT operations, and
+        # then converting back to the keypoint object representation;
+        # consider just making the numpy array the standard form. More
+        # space efficient and no need for conversions like this, but
+        # less explicit than a specific type. I guess a question between
         # readability and performance(chose readability in most cases...)
 
         # A JNP array of all our keypoints as hetergenous coordinate
         # vectors
-        jnpKeypointArray : jnp.ndarray = jnp.vstack(
-            [ kp.asHeterogenous() for kp in self.keypoints ]
+        jnpKeypointArray: jnp.ndarray = jnp.vstack(
+            [kp.asHeterogenous() for kp in self.keypoints]
         )
 
         # Normalized keypoint array and normalization matrix
-        normalizedKeypointArr, jnpNormalMat = normalizeKeypointMatrix(jnpKeypointArray)
+        (
+            normalizedKeypointArr,
+            jnpNormalMat,
+        ) = normalizeKeypointMatrix(jnpKeypointArray)
 
         # Store normalization matrix internally
         self.normalizeMat = jnpNormalMat
@@ -153,5 +156,5 @@ class ImageFeatures(Generic[T]):
             self.normalizedKeypoints.append(
                 Keypoint(np.array(jnpKeypointArray[i]))
             )
-        
+
         # Done

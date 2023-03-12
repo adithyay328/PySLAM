@@ -15,7 +15,6 @@ Subpackages
    epipolar_models/index.rst
    image_processing/index.rst
    optim/index.rst
-   pubsub/index.rst
    systems/index.rst
    visualize/index.rst
 
@@ -28,6 +27,7 @@ Submodules
 
    capture/index.rst
    odometry/index.rst
+   pubsub/index.rst
    uid/index.rst
 
 

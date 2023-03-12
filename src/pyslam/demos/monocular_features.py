@@ -12,8 +12,7 @@ from pyslam.common_capture.UncalibratedMonocularCamera import (
     MonocularUncalibratedCameraMeasurement,
 )
 from pyslam.image_processing.cv_pillow import PillowColorFormat
-from pyslam.pubsub.MessageQueue import MessageQueue
-from pyslam.pubsub.Publisher import Publisher
+from pyslam.pubsub import MessageQueue, Publisher
 from pyslam.visualize.PyGameFrameWindow import PyGameFrameWindow
 from pyslam.image_processing.feature_descriptors.ImageFeatures import (
     ImageFeatures,

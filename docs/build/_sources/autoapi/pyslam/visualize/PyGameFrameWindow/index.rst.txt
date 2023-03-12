@@ -17,7 +17,7 @@ Classes
 
 
 
-.. py:class:: PyGameFrameWindow(msgQueue: pyslam.pubsub.MessageQueue.MessageQueue[PIL.Image.Image])
+.. py:class:: PyGameFrameWindow(msgQueue: pyslam.pubsub.MessageQueue[PIL.Image.Image])
 
    A class that wraps around a PyGame window and
    allows client code to visualize individual video

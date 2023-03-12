@@ -5,7 +5,17 @@
 
 .. autoapi-nested-parse::
 
-   This module creates base types related to odometry.
+   This module defines base types related to odometry.
+   Mainly, it defines an abstract base class,
+   PoseTransformSource, which is to be sub-classed by
+   any type that allows us to extract relative poses
+   between 2 timesteps.
+
+   A simple example would be a Fundamental Matrix;
+   once we have a fundamental matrix, we can do
+   pose estimation, using the four possible solutions
+   for the poses to extract a single, correct
+   relative pose.
 
 
 

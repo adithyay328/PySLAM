@@ -211,19 +211,15 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../pubsub/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../pubsub/MessageQueue/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub.MessageQueue</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../pubsub/Publisher/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub.Publisher</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="../../systems/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.systems</span></code></a></li>
-<li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../DrawFeatures/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.DrawFeatures</span></code></a></li>
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.PyGameFrameWindow</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../capture/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.capture</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../odometry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.odometry</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../pubsub/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.pubsub</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../uid/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.uid</span></code></a></li>
 </ul>
 </li>
@@ -280,7 +276,7 @@
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyslam.visualize.PyGameFrameWindow.PyGameFrameWindow">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyslam.visualize.PyGameFrameWindow.</span></span><span class="sig-name descname"><span class="pre">PyGameFrameWindow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msgQueue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../pubsub/MessageQueue/index.html#pyslam.pubsub.MessageQueue.MessageQueue" title="pyslam.pubsub.MessageQueue.MessageQueue"><span class="pre">pyslam.pubsub.MessageQueue.MessageQueue</span></a><span class="p"><span class="pre">[</span></span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyslam.visualize.PyGameFrameWindow.PyGameFrameWindow" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyslam.visualize.PyGameFrameWindow.</span></span><span class="sig-name descname"><span class="pre">PyGameFrameWindow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msgQueue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../pubsub/index.html#pyslam.pubsub.MessageQueue" title="pyslam.pubsub.MessageQueue"><span class="pre">pyslam.pubsub.MessageQueue</span></a><span class="p"><span class="pre">[</span></span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyslam.visualize.PyGameFrameWindow.PyGameFrameWindow" title="Permalink to this definition">#</a></dt>
 <dd><p>A class that wraps around a PyGame window and
 allows client code to visualize individual video
 frames easily. Reads frames from an Image publisher.</p>
