@@ -1,0 +1,45 @@
+:py:mod:`pyslam.capture_old.MeasurementSource`
+==============================================
+
+.. py:module:: pyslam.capture_old.MeasurementSource
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture_old.MeasurementSource.MeasurementSource
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture_old.MeasurementSource.T
+
+
+.. py:data:: T
+
+   
+
+.. py:class:: MeasurementSource(uid: Optional[pyslam.uid.UID])
+
+   Bases: :py:obj:`pyslam.pubsub.Publisher.Publisher`\ [\ :py:obj:`T`\ ], :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
+
+   An abstract base class representing a source for
+   Measurements; this could be a sensor, a ROS topic, a
+   pre-recorded set of datapoints from a SLAM dataset, whatever.
+   Has a UID that can be referenced by
+   measurements, but apart from that is a pretty
+   lightweight interface to subclass.
+
+   :param uid: A UID that uniquely identifies this MeasurementSource
+
+

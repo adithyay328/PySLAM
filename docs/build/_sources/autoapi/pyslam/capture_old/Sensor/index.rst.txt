@@ -1,0 +1,106 @@
+:py:mod:`pyslam.capture_old.Sensor`
+===================================
+
+.. py:module:: pyslam.capture_old.Sensor
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture_old.Sensor.Sensor
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.capture_old.Sensor.T
+
+
+.. py:data:: T
+
+   
+
+.. py:class:: Sensor(uid: Optional[pyslam.uid.UID])
+
+   Bases: :py:obj:`pyslam.capture_old.MeasurementSource.MeasurementSource`\ [\ :py:obj:`T`\ ], :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
+
+   A special kind of MeasurementSource that is intended
+   to wrap around a physical sensor; allows client code
+   to implement just 3 functions, with the rest of the
+   capture loop managed by generic code.
+
+   :param uid: A UID that uniquely identifies this Sensor
+
+   .. py:method:: makeActive(captureFrequency: float) -> None
+      :abstractmethod:
+
+      When called, the framework is asking this sensor to be
+      prepared to start returning captures. Internally, this
+      function can be used for any setup needed to get the sensor
+      into an active state.
+
+      For example, for a camera, this might
+      start an interal capture loop that gets opencv frames from the
+      camera at some frequency, and then saves them to some internal
+      buffer. This would allow the getCapture() function to complete
+      almost instantly, by simply popping the most recent capture
+      off the buffer.
+
+      :param captureFrequency: The number of times per second this
+        sensor should yield a measurement.
+
+
+   .. py:method:: getMeasurement() -> T
+      :abstractmethod:
+
+      A function that returns the latest
+      measurement from this sensor. This is expected
+      to return almost immediately
+
+
+   .. py:method:: leaveActive() -> None
+      :abstractmethod:
+
+      Performs any cleanup to take this sensor out of an active state.
+      For example, turn a camera sensor to an idle state and stop
+      capturing frames.
+
+
+   .. py:method:: __internalCaptureLoop(captureRate: float) -> None
+
+      An internal function that does all the work related to
+      getting sensor measurements, propogating to all
+      listeners and waiting for the appropriate amount of time
+      to run next
+
+      :param captureRate: A float indicating how many measurements
+        we should pull from the sensor per second.
+
+
+   .. py:method:: startCaptureLoop(captureRate: float) -> None
+
+      Starts the capture loop on a new process. This will
+      return immediately, and the capture loop will run
+      in the background.
+
+      :param captureRate: The rate at which the underlying
+        sensor and this wrapper should get new measurements.
+        Units are in measurements per second.
+
+
+   .. py:method:: stopCaptureLoop() -> None
+
+      Stops the capture loop. This is a blocking function,
+      and will not return until the capture loop is stopped.
+
+
+

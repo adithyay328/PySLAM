@@ -5,19 +5,27 @@
 
 .. autoapi-nested-parse::
 
-   This demo takes in the file name of a video
-   camera, and visualizes 5 frames from the camera,
-   using the Monocular File Camera Sensor to get the
-   images
+   Contains a demo that captures frames from
+   a monocular file camera
+   on the machine, and displays with PyGame
 
 
 
-Submodules
-----------
-.. toctree::
-   :titlesonly:
-   :maxdepth: 1
+Module Contents
+---------------
 
-   monocular_capture/index.rst
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.demos.monocular_capture.run
+
+
+
+.. py:function:: run() -> None
+
+   Runs the monocular capture demo.
 
 

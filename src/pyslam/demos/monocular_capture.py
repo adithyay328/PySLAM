@@ -1,3 +1,9 @@
+"""
+Contains a demo that captures frames from 
+a monocular file camera
+on the machine, and displays with PyGame
+"""
+
 from typing import Optional
 from PIL.Image import Image
 
@@ -9,18 +15,11 @@ from pyslam.image_processing.cv_pillow import PillowColorFormat
 from pyslam.pubsub.MessageQueue import MessageQueue
 from pyslam.pubsub.Publisher import Publisher
 from pyslam.visualize.PyGameFrameWindow import PyGameFrameWindow
-from pyslam.image_processing.feature_descriptors.ImageFeatures import (
-    ImageFeatures,
-)
-from pyslam.image_processing.feature_descriptors.extractors.end2end.orb_detect_and_compute import (
-    ORB_Detect_And_Compute,
-)
-from pyslam.visualize.DrawFeatures import drawFeatures
 
 
 def run() -> None:
     """
-    Runs the monocular features demo.
+    Runs the monocular capture demo.
     """
 
     # Prompt the user for the camera file name
@@ -35,13 +34,12 @@ def run() -> None:
         )
     )
 
-    # Get a message queue from the camera
+    # Get a message queue to listen on
     msgQueue: MessageQueue[
         MonocularUncalibratedCameraMeasurement
     ] = cameraSensor.subscribe()
 
-    # Create an image publisher that pushes frames to the PyGame window;
-    # we will push to this after computing features
+    # Create an image publisher
     imagePublisher: Publisher[Image] = Publisher[Image]()
 
     # Spawn the pygame window
@@ -50,18 +48,12 @@ def run() -> None:
     )
 
     # Start the sensor capture loop
-    cameraSensor.startCaptureLoop(40)
+    cameraSensor.startCaptureLoop(60)
 
     # Start the pygame window
     pyGameFrameWindow.startListenLoop()
 
-    # Construct our extractor
-    extractor: ORB_Detect_And_Compute = ORB_Detect_And_Compute(
-        500
-    )
-
-    # Takes in mononcular measurements, computes features, draws them onto an image,
-    # and then pushes to the PyGame Window
+    # Convert the MonocularUncalibratedCameraMeasurement to a PIL Image
     while True:
         nextCamMeasure: Optional[
             MonocularUncalibratedCameraMeasurement
@@ -69,17 +61,8 @@ def run() -> None:
 
         assert nextCamMeasure is not None
 
-        # Compute features and descriptors
-        imageFeatures: ImageFeatures = ImageFeatures(
-            nextCamMeasure.image, extractor, extractor
-        )
-
-        # Draw features onto the image
-        imageWithFeatures: Image = drawFeatures(
-            nextCamMeasure.image, imageFeatures
-        )
-
-        imagePublisher.publish(imageWithFeatures)
+        # Publish the image
+        imagePublisher.publish(nextCamMeasure.image)
 
 
 if __name__ == "__main__":

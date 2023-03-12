@@ -5,17 +5,27 @@
 
 .. autoapi-nested-parse::
 
-   Contains logic related to a demo showing ORB features being detected
-   against a series of monocular image frames.
+   Contains a demo that captures frames from
+   a monocular file camera, extracts ORB features,
+   and displays them with PyGame
 
 
 
-Submodules
-----------
-.. toctree::
-   :titlesonly:
-   :maxdepth: 1
+Module Contents
+---------------
 
-   monocular_features/index.rst
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.demos.monocular_features.run
+
+
+
+.. py:function:: run() -> None
+
+   Runs the monocular features demo.
 
 

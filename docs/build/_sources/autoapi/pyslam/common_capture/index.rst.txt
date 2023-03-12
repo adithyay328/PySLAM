@@ -1,0 +1,22 @@
+:py:mod:`pyslam.common_capture`
+===============================
+
+.. py:module:: pyslam.common_capture
+
+.. autoapi-nested-parse::
+
+   This submodule contains utilities related to
+   common kinds of capture sources and measurements
+   that our framework can use out of the box.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   UncalibratedMonocularCamera/index.rst
+
+

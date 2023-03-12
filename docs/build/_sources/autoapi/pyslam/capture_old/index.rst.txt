@@ -4,17 +4,24 @@
 .. py:module:: pyslam.capture_old
 
 
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   common/index.rst
+
+
 Submodules
 ----------
 .. toctree::
    :titlesonly:
    :maxdepth: 1
 
-   Capture/index.rst
-   CaptureGroup/index.rst
-   CaptureManager/index.rst
-   RawSensor/index.rst
-   SensorWrapper/index.rst
+   Measurement/index.rst
+   MeasurementSource/index.rst
+   Sensor/index.rst
 
 
 Package Contents
@@ -25,167 +32,155 @@ Classes
 
 .. autoapisummary::
 
-   pyslam.capture_old.Capture
-   pyslam.capture_old.CaptureGroup
-   pyslam.capture_old.CaptureManager
-   pyslam.capture_old.RawSensor
-   pyslam.capture_old.SensorWrapper
+   pyslam.capture_old.UID
+   pyslam.capture_old.Measurement
+   pyslam.capture_old.MeasurementSource
+   pyslam.capture_old.Sensor
 
 
 
 
-.. py:class:: Capture(sensorWrapperUID: str, uid: Optional[str] = None)
+Attributes
+~~~~~~~~~~
 
-   Bases: :py:obj:`abc.ABC`
+.. autoapisummary::
 
-   This class represents a "capture" from a Sensor(akin to a single
-   sensor measurement for other kinds of sensors). This is an
-   abstract base class, with specific types of captures being
-   subclassed from here. Subclasses can have extra properties
-   specific to that type of capture, such as a depth map
+   pyslam.capture_old.GLOBAL_LOOKUP
 
-   .. py:property:: sensorWrapperUID
-      :type: str
 
+.. py:class:: UID(uid: Optional[str] = None)
+
+   A class representing a unique identifier
 
    .. py:property:: uid
       :type: str
 
 
-
-.. py:class:: CaptureGroup(listOfCaptureUIDs)
-
-   A group of capture object UIDs together. Just a type that wraps around a
-   list.
-
-
-.. py:class:: CaptureManager(stopEvent: threading.Event, captureRate: int = 5)
-
-   This class is responsible for managing all
-   physical sensors attached to this system;
-   i.e. all SensorWrappers are registered with an instance
-   of this class. Also contains a lookup for all
-   captures we extract.
-
-   .. py:method:: __captureLoop()
-
-      The internal capture loop that the manager runs
-      ; expected to be started in a new thread
-      by the startCaptureLoop function. Exits when the stop
-      flag is set
-
-
-   .. py:method:: startCaptureLoop()
-
-      Starts the internal capture loop in a separate process.
-
-
-   .. py:method:: register(sensorWrapper)
-
-      Registers a new sensor wrapper with this CaptureManager.
+   .. py:method:: generateUID()
+      :staticmethod:
 
 
 
-.. py:class:: RawSensor
+.. py:data:: GLOBAL_LOOKUP
+   :type: weakref.WeakValueDictionary[pyslam.uid.UID, Union[Measurement.Measurement, MeasurementSource.MeasurementSource, Sensor.Sensor]]
+
+   
+
+.. py:class:: Measurement(uid: Optional[pyslam.uid.UID], sourceUID: pyslam.uid.UID, timestamp: Optional[datetime.datetime] = None)
 
    Bases: :py:obj:`abc.ABC`
 
-   An abstract class that implements
-   the core functions of a raw sensor. Specific
-   types of sensors can derive themselves from this.
+   A generic base class that represents some kind of
+   capture/measurement from a sensor.
 
-   .. py:method:: activateSensor()
+   :param uid: A UID object that uniquely identifies this measurement.
+   :param sourceUID: The UID of the MeasurementSource
+   :param timestamp: A datetime object indicating the time when this
+     measurement was taken. Timezones are always in UTC.
+
+   .. py:property:: uid
+      :type: pyslam.uid.UID
+
+      Returns a copy of the UID for this measurement
+
+   .. py:property:: timestamp
+      :type: datetime.datetime
+
+      Returns a copy of the timestamp of this measurement
+
+   .. py:property:: sourceUID
+      :type: pyslam.uid.UID
+
+      Returns a reference to the MeasurementSource that this measurement
+      came from
+
+
+.. py:class:: MeasurementSource(uid: Optional[pyslam.uid.UID])
+
+   Bases: :py:obj:`pyslam.pubsub.Publisher.Publisher`\ [\ :py:obj:`T`\ ], :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
+
+   An abstract base class representing a source for
+   Measurements; this could be a sensor, a ROS topic, a
+   pre-recorded set of datapoints from a SLAM dataset, whatever.
+   Has a UID that can be referenced by
+   measurements, but apart from that is a pretty
+   lightweight interface to subclass.
+
+   :param uid: A UID that uniquely identifies this MeasurementSource
+
+
+.. py:class:: Sensor(uid: Optional[pyslam.uid.UID])
+
+   Bases: :py:obj:`pyslam.capture_old.MeasurementSource.MeasurementSource`\ [\ :py:obj:`T`\ ], :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
+
+   A special kind of MeasurementSource that is intended
+   to wrap around a physical sensor; allows client code
+   to implement just 3 functions, with the rest of the
+   capture loop managed by generic code.
+
+   :param uid: A UID that uniquely identifies this Sensor
+
+   .. py:method:: makeActive(captureFrequency: float) -> None
       :abstractmethod:
 
-      A function that performs any needed sensor
-      initialization and prepares the sensor
-      for a capture call. As an example, this might
-      tell opencv to start capturing video
-      from a camera so that when the SensorWrapper
-      calls for a capture, it happens as
-      fast as the sensor can manage.
+      When called, the framework is asking this sensor to be
+      prepared to start returning captures. Internally, this
+      function can be used for any setup needed to get the sensor
+      into an active state.
+
+      For example, for a camera, this might
+      start an interal capture loop that gets opencv frames from the
+      camera at some frequency, and then saves them to some internal
+      buffer. This would allow the getCapture() function to complete
+      almost instantly, by simply popping the most recent capture
+      off the buffer.
+
+      :param captureFrequency: The number of times per second this
+        sensor should yield a measurement.
 
 
-   .. py:method:: teardownSensor()
+   .. py:method:: getMeasurement() -> T
       :abstractmethod:
 
-      The opposite of startCapture; any cleanup that needs
-      to be done is done here,
-      and this function tells the sensor to stop recording and
-      go into a standby state.
-      In the context of a camera, this could mean telling opencv
-      to stop capturing frames
-      and put the camera into an idle state.
+      A function that returns the latest
+      measurement from this sensor. This is expected
+      to return almost immediately
 
 
-   .. py:method:: capture(sensorWrapperUID) -> pyslam.capture_old.Capture.Capture
+   .. py:method:: leaveActive() -> None
       :abstractmethod:
 
-      Returns a Capture object populated with the data
-      the sensor collected.
+      Performs any cleanup to take this sensor out of an active state.
+      For example, turn a camera sensor to an idle state and stop
+      capturing frames.
 
 
+   .. py:method:: __internalCaptureLoop(captureRate: float) -> None
 
-.. py:class:: SensorWrapper(name: str, rawSensor: pyslam.capture.RawSensor)
+      An internal function that does all the work related to
+      getting sensor measurements, propogating to all
+      listeners and waiting for the appropriate amount of time
+      to run next
 
-   Bases: :py:obj:`abc.ABC`
-
-   This class wraps around a raw object for a physical sensor attached to our system.
-   This class deals with getting captures from that sensor, and all the piping
-   and inter-process communication related to that.
-
-   The ImageSensor has a couple high-level functions it needs to support:
-     1. Support for a capture loop. When commanded, image sensors should
-      be able to put themselves into a capture loop state, where the
-      timings of their captures are entirely decided by the capture
-      loop in the CaptureManager. This should be in a different thread
-      to allow for more accurate timing.
-     2. Take a single capture. This seems like a pretty fundamental
-       thing to be able to do,
-        and so all SensorWrappers allow this. The way this is
-        implemented is with 2 cases, one where the Sensor is in
-        a capture loop and one where it isn't.
-         a. When in a capture loop, we shouldn't inerfere with the
-            capture and should instead grab a copy of the most recent
-            capture from the camera loop. To do this, we have an internal queue
-            where we post the most recent capture from the loop. When
-            you want to get a capture, simply wait for this queue to have
-            one on it.
-         b. In the case where we aren't currently in a capture loop, simply
-             start capturing, pull a frame, and stop capturing.
+      :param captureRate: A float indicating how many measurements
+        we should pull from the sensor per second.
 
 
-   .. py:method:: __startCapture()
+   .. py:method:: startCaptureLoop(captureRate: float) -> None
 
-      Sets active flag to true, acquires the capture lock,
-      and configures our sensor to be ready for capture
+      Starts the capture loop on a new process. This will
+      return immediately, and the capture loop will run
+      in the background.
 
-
-   .. py:method:: __endCapture()
-
-      Sets active flag to false, clears the capture lock,
-      and tears down the sensor.
-
-
-   .. py:method:: __captureLoop()
-
-      The internal capture loop function that startCaptureLoop executes in a
-      different thread
+      :param captureRate: The rate at which the underlying
+        sensor and this wrapper should get new measurements.
+        Units are in measurements per second.
 
 
-   .. py:method:: startCaptureLoop()
+   .. py:method:: stopCaptureLoop() -> None
 
-      External function to start the capture loop
-      in its own multi-process
-
-
-   .. py:method:: getCapture()
-
-      This function implements a thread-safe and non-intrusive
-      way to get the latest capture from the sensor. It deals
-      with the problems of co-operating with the capture loop
-      if it's currently running, and generally makes it easy
-      to get a capture from a SensorWrapper
+      Stops the capture loop. This is a blocking function,
+      and will not return until the capture loop is stopped.
 
 
 

@@ -289,20 +289,52 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix" title="pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HomographyMatrix</span></code></a></p></td>
-<td><p>This is an abstract base class that is sub-classed</p></td>
+<td><p>A class representing a HomographyMatrix that we</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyslam.odometry.visual_odometry.HomographyMatrix.</span></span><span class="sig-name descname"><span class="pre">HomographyMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgOneNormalizedFeatures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NormalizedImageFeatures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgTwoNormalizedFeatures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NormalizedImageFeatures</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../../index.html#pyslam.odometry.PoseTransformSource" title="pyslam.odometry.PoseTransformSource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyslam.odometry.PoseTransformSource</span></code></a></p>
-<p>This is an abstract base class that is sub-classed
-by any class that can return an estimation of pose
-transformation; with visual odometry these could be
-Fundamental and Homography matrices, and in the case
-of VIO this could be an instance of IMU preintegration</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyslam.odometry.visual_odometry.HomographyMatrix.</span></span><span class="sig-name descname"><span class="pre">HomographyMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgOneFeatures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../image_processing/feature_descriptors/ImageFeatures/index.html#pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures" title="pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures"><span class="pre">pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgTwoFeatures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../image_processing/feature_descriptors/ImageFeatures/index.html#pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures" title="pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures"><span class="pre">pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../../optim/ransac/RANSACModel/index.html#pyslam.optim.ransac.RANSACModel.RANSACModel" title="pyslam.optim.ransac.RANSACModel.RANSACModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyslam.optim.ransac.RANSACModel.RANSACModel</span></code></a>[<a class="reference internal" href="../../../image_processing/feature_descriptors/ImagePairFeatureMatches/index.html#pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match" title="pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match</span></code></a>], <a class="reference internal" href="../../index.html#pyslam.odometry.PoseTransformSource" title="pyslam.odometry.PoseTransformSource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyslam.odometry.PoseTransformSource</span></code></a></p>
+<p>A class representing a HomographyMatrix that we
+estimate from 2 cameras, whose image features are already
+computed.`
+:param imgOneFeatures: The image features</p>
+<blockquote>
+<div><p>we detected from the first image.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>imgTwoFeatures</strong> – The image features
+we detected from the second image.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../optim/ransac/RANSACDataset/index.html#pyslam.optim.ransac.RANSACDataset.RANSACDataset" title="pyslam.optim.ransac.RANSACDataset.RANSACDataset"><span class="pre">pyslam.optim.ransac.RANSACDataset.RANSACDataset</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../image_processing/feature_descriptors/ImagePairFeatureMatches/index.html#pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match" title="pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match"><span class="pre">pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix.fit" title="Permalink to this definition">#</a></dt>
+<dd><p>Implements the fit function expected for RANSACModels.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix.findInlierIndices">
+<span class="sig-name descname"><span class="pre">findInlierIndices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../optim/ransac/RANSACDataset/index.html#pyslam.optim.ransac.RANSACDataset.RANSACDataset" title="pyslam.optim.ransac.RANSACDataset.RANSACDataset"><span class="pre">pyslam.optim.ransac.RANSACDataset.RANSACDataset</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../image_processing/feature_descriptors/ImagePairFeatureMatches/index.html#pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match" title="pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match"><span class="pre">pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix.findInlierIndices" title="Permalink to this definition">#</a></dt>
+<dd><p>Implements the find inlier indices function for RANSAC Models.</p>
+<p>Since this function takes no paramaters apart from the data,
+all the config related to what cost function to use have to be
+passed in to the constructor of the homography matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – The RANSACDataset to determine inliers from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns a numpy int array with all indices
+corresponding to inliers in the root dataset.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -349,8 +381,16 @@ of VIO this could be an instance of IMU preintegration</p>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.odometry.visual_odometry.HomographyMatrix</span></code></a><ul>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a><ul>
-<li><a class="reference internal" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix"><code class="docutils literal notranslate"><span class="pre">HomographyMatrix</span></code></a></li>
-<li><a class="reference internal" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix">HomographyMatrix</a></li>
+<li><a class="reference internal" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix"><code class="docutils literal notranslate"><span class="pre">HomographyMatrix</span></code></a><ul>
+<li><a class="reference internal" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix.fit"><code class="docutils literal notranslate"><span class="pre">HomographyMatrix.fit()</span></code></a></li>
+<li><a class="reference internal" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix.findInlierIndices"><code class="docutils literal notranslate"><span class="pre">HomographyMatrix.findInlierIndices()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix">HomographyMatrix</a><ul>
+<li><a class="reference internal" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix.fit">fit</a></li>
+<li><a class="reference internal" href="#pyslam.odometry.visual_odometry.HomographyMatrix.HomographyMatrix.findInlierIndices">findInlierIndices</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

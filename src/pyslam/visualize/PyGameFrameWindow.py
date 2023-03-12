@@ -7,7 +7,9 @@ from PIL.Image import Image
 import cv2
 
 from pyslam.pubsub.MessageQueue import MessageQueue
-from pyslam.common_capture.UncalibratedMonocularCamera import MonocularUncalibratedCameraMeasurement
+from pyslam.common_capture.UncalibratedMonocularCamera import (
+    MonocularUncalibratedCameraMeasurement,
+)
 from pyslam.image_processing.cv_pillow import pillowToArray
 
 

@@ -1,0 +1,35 @@
+:py:mod:`pyslam.epipolar_models.Error`
+======================================
+
+.. py:module:: pyslam.epipolar_models.Error
+
+.. autoapi-nested-parse::
+
+   This module implements logic related to computing the
+   error of a general epipolar model on a given dataset.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.epipolar_models.Error.Error
+
+
+
+
+.. py:class:: Error
+
+   Bases: :py:obj:`abc.ABC`
+
+   A base class representing an error that we can compute
+   against some kind of epipolar model, represented
+   by a matrix, on some dataset, given by a set of matches
+   and a set of points.
+
+

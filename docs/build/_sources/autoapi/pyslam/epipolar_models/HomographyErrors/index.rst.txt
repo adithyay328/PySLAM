@@ -1,0 +1,32 @@
+:py:mod:`pyslam.epipolar_models.HomographyErrors`
+=================================================
+
+.. py:module:: pyslam.epipolar_models.HomographyErrors
+
+.. autoapi-nested-parse::
+
+   This module implements logic related to computing the
+   error of a homography matrix on a given dataset.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.epipolar_models.HomographyErrors.HomographyError
+
+
+
+
+.. py:class:: HomographyError
+
+   Bases: :py:obj:`abc.ABC`
+
+   A base class representing an error that
+
+

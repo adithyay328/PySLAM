@@ -3,36 +3,22 @@
 
 .. py:module:: pyslam.capture
 
+.. autoapi-nested-parse::
 
-Subpackages
------------
-.. toctree::
-   :titlesonly:
-   :maxdepth: 3
-
-   common/index.rst
+   Contains core logic and types related to
+   getting measurements
+   from sensors and other sources.
 
 
-Submodules
-----------
-.. toctree::
-   :titlesonly:
-   :maxdepth: 1
 
-   Measurement/index.rst
-   MeasurementSource/index.rst
-   Sensor/index.rst
-
-
-Package Contents
-----------------
+Module Contents
+---------------
 
 Classes
 ~~~~~~~
 
 .. autoapisummary::
 
-   pyslam.capture.UID
    pyslam.capture.Measurement
    pyslam.capture.MeasurementSource
    pyslam.capture.Sensor
@@ -46,23 +32,11 @@ Attributes
 .. autoapisummary::
 
    pyslam.capture.GLOBAL_LOOKUP
-
-
-.. py:class:: UID(uid: Optional[str] = None)
-
-   A class representing a unique identifier
-
-   .. py:property:: uid
-      :type: str
-
-
-   .. py:method:: generateUID()
-      :staticmethod:
-
+   pyslam.capture.T
 
 
 .. py:data:: GLOBAL_LOOKUP
-   :type: weakref.WeakValueDictionary[pyslam.uid.UID, Union[Measurement.Measurement, MeasurementSource.MeasurementSource, Sensor.Sensor]]
+   :type: weakref.WeakValueDictionary[pyslam.uid.UID, Union[Measurement, MeasurementSource, Sensor]]
 
    
 
@@ -95,6 +69,10 @@ Attributes
       came from
 
 
+.. py:data:: T
+
+   
+
 .. py:class:: MeasurementSource(uid: Optional[pyslam.uid.UID])
 
    Bases: :py:obj:`pyslam.pubsub.Publisher.Publisher`\ [\ :py:obj:`T`\ ], :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
@@ -111,7 +89,7 @@ Attributes
 
 .. py:class:: Sensor(uid: Optional[pyslam.uid.UID])
 
-   Bases: :py:obj:`pyslam.capture.MeasurementSource.MeasurementSource`\ [\ :py:obj:`T`\ ], :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
+   Bases: :py:obj:`MeasurementSource`\ [\ :py:obj:`T`\ ], :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`abc.ABC`
 
    A special kind of MeasurementSource that is intended
    to wrap around a physical sensor; allows client code

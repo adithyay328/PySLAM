@@ -17,14 +17,35 @@ Classes
 
 
 
-.. py:class:: HomographyMatrix(imgOneNormalizedFeatures: NormalizedImageFeatures, imgTwoNormalizedFeatures: NormalizedImageFeatures)
+.. py:class:: HomographyMatrix(imgOneFeatures: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures, imgTwoFeatures: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures)
 
-   Bases: :py:obj:`pyslam.odometry.PoseTransformSource`
+   Bases: :py:obj:`pyslam.optim.ransac.RANSACModel.RANSACModel`\ [\ :py:obj:`pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match`\ ], :py:obj:`pyslam.odometry.PoseTransformSource`
 
-   This is an abstract base class that is sub-classed
-   by any class that can return an estimation of pose
-   transformation; with visual odometry these could be
-   Fundamental and Homography matrices, and in the case
-   of VIO this could be an instance of IMU preintegration
+   A class representing a HomographyMatrix that we
+   estimate from 2 cameras, whose image features are already
+   computed.`
+   :param imgOneFeatures: The image features
+       we detected from the first image.
+   :param imgTwoFeatures: The image features
+       we detected from the second image.
+
+   .. py:method:: fit(data: pyslam.optim.ransac.RANSACDataset.RANSACDataset[pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match])
+
+      Implements the fit function expected for RANSACModels.
+
+
+   .. py:method:: findInlierIndices(data: pyslam.optim.ransac.RANSACDataset.RANSACDataset[pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match]) -> numpy.ndarray
+
+      Implements the find inlier indices function for RANSAC Models.
+
+      Since this function takes no paramaters apart from the data,
+      all the config related to what cost function to use have to be
+      passed in to the constructor of the homography matrix.
+
+      :param data: The RANSACDataset to determine inliers from.
+
+      :return: Returns a numpy int array with all indices
+          corresponding to inliers in the root dataset.
+
 
 
