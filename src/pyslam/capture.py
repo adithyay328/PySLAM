@@ -1,16 +1,107 @@
-from typing import TypeVar, Generic, Optional
+"""
+Contains core logic and types related to 
+getting measurements
+from sensors and other sources.
+"""
+
 from abc import ABC, abstractmethod
+from copy import copy
+import weakref
+from typing import TypeVar, Generic, Optional, Union
 import multiprocessing
 from multiprocessing import synchronize
-from datetime import datetime, timezone, timedelta
-import asyncio
 import time
+from datetime import datetime, timezone, timedelta
 
-from pyslam.capture.Measurement import Measurement
-from pyslam.capture.MeasurementSource import MeasurementSource
 from pyslam.uid import UID
+from pyslam.pubsub.Publisher import Publisher
+
+# This WeakDict serves as a lookup for
+# Measurements, MeasurementSources and Sensors.
+# Allows global lookups, while not impeding
+# garbage collection
+GLOBAL_LOOKUP: weakref.WeakValueDictionary[
+    UID, Union["Measurement", "MeasurementSource", "Sensor"]
+] = weakref.WeakValueDictionary()
+
+
+class Measurement(ABC):
+    """
+    A generic base class that represents some kind of
+    capture/measurement from a sensor.
+
+    :param uid: A UID object that uniquely identifies this measurement.
+    :param sourceUID: The UID of the MeasurementSource
+    :param timestamp: A datetime object indicating the time when this
+      measurement was taken. Timezones are always in UTC.
+    """
+
+    def __init__(
+        self,
+        uid: Optional[UID],
+        sourceUID: UID,
+        timestamp: Optional[datetime] = None,
+    ) -> None:
+        # Set initial values
+        self.__uid: UID = UID()
+        self.__timestamp: datetime = datetime.now(
+            tz=timezone.utc
+        )
+        self.__sourceUID: UID = sourceUID
+
+        # Update any attributes that are passed in via optionals
+        if uid is not None:
+            self.__uid = uid
+        if timestamp is not None:
+            self.__timestamp = timestamp
+
+        # Register self with the lookup
+        GLOBAL_LOOKUP[self.__uid] = self
+
+    @property
+    def uid(self) -> UID:
+        """Returns a copy of the UID for this measurement"""
+        return copy(self.__uid)
+
+    @property
+    def timestamp(self) -> datetime:
+        """Returns a copy of the timestamp of this measurement"""
+        return copy(self.__timestamp)
+
+    @property
+    def sourceUID(self) -> UID:
+        """
+        Returns a reference to the MeasurementSource that this measurement
+        came from
+        """
+        return copy(self.__sourceUID)
+
 
 T = TypeVar("T", bound=Measurement)
+
+
+class MeasurementSource(Publisher[T], Generic[T], ABC):
+    """
+    An abstract base class representing a source for
+    Measurements; this could be a sensor, a ROS topic, a
+    pre-recorded set of datapoints from a SLAM dataset, whatever.
+    Has a UID that can be referenced by
+    measurements, but apart from that is a pretty
+    lightweight interface to subclass.
+
+    :param uid: A UID that uniquely identifies this MeasurementSource
+    """
+
+    def __init__(self, uid: Optional[UID]):
+        super().__init__()
+
+        # Set initial values
+        self._uid: UID = UID()
+        if uid is not None:
+            self._uid = uid
+
+        # Register self with the lookup
+        GLOBAL_LOOKUP[self._uid] = self
 
 
 class Sensor(MeasurementSource[T], Generic[T], ABC):

@@ -1,17 +1,49 @@
 from typing import Optional
+from datetime import datetime
 
-import cv2
 from PIL.Image import Image
+import cv2
 
-from pyslam.capture import Sensor
-from pyslam.capture.common.monocular_uncalibrated_camera.MonocularUncalibratedCameraMeasurement import (
-    MonocularUncalibratedCameraMeasurement,
-)
+from pyslam.capture import Measurement, Sensor
 from pyslam.uid import UID
 from pyslam.image_processing.cv_pillow import (
     PillowColorFormat,
     arrayToPillowImage,
 )
+
+
+"""
+This module contains Measurement Types and Sensor types
+related to capturing from a monocular, uncalibrated
+camera.
+"""
+
+
+class MonocularUncalibratedCameraMeasurement(Measurement):
+    """
+    A measurement representing an image from an uncalibrated,
+    monocular camera.
+
+    :param uid: If already known, represents the UID of this
+        measurement
+    :param sourceUID: The UID of the MeasurementSource that
+        yielded this measurement.
+    :param image: The pillow image object representing the image for
+        this measurement.
+    :param timestamp: If already known, represents the timestamp
+        of this measurement.
+    """
+
+    def __init__(
+        self,
+        uid: Optional[UID],
+        sourceUID: UID,
+        image: Image,
+        timestamp: Optional[datetime] = None,
+    ) -> None:
+        super().__init__(uid, sourceUID, timestamp)
+
+        self.image: Image = image
 
 
 class MonocularUncalibratedFileCamera(
@@ -87,13 +119,13 @@ class MonocularUncalibratedFileCamera(
                 f"CV2 failed to capture a frame from camera at {self.fName}"
             )
         else:
-            collorCorrectArray = (
+            colorCorrectArray = (
                 cv2.cvtColor(frame, self.openCVColorCode)
                 if self.openCVColorCode != -1
                 else frame
             )
             image: Image = arrayToPillowImage(
-                collorCorrectArray, self.pillowTargetColor
+                colorCorrectArray, self.pillowTargetColor
             )
 
             newMeasurement: MonocularUncalibratedCameraMeasurement = MonocularUncalibratedCameraMeasurement(

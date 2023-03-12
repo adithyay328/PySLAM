@@ -1,7 +1,7 @@
 from typing import Optional
 from PIL.Image import Image
 
-from pyslam.capture.common.monocular_uncalibrated_camera import (
+from pyslam.common_capture.UncalibratedMonocularCamera import (
     MonocularUncalibratedFileCamera,
     MonocularUncalibratedCameraMeasurement,
 )
