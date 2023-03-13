@@ -41,19 +41,23 @@ import queue
 import weakref
 import multiprocessing
 
-T = TypeVar("T")
+# Defining 2 types; one used for
+# types decided by the type of
+# incoming message, and one for outgoing
+INCOMING_T = TypeVar("INCOMING_T")
+OUTGOING_T = TypeVar("OUTGOING_T")
 
 
-class MessageQueue(Generic[T]):
+class MessageQueue(Generic[INCOMING_T]):
     """A MessageQueue with typing on received messages.
     Queues must be passed in, as they are expectd to be
     proxy objects managed by a Multiprocessing Manager. Without that,
     they can't be pickled, which restricts their use."""
 
-    def __init__(self, queue: queue.Queue[T]) -> None:
+    def __init__(self, queue: queue.Queue[INCOMING_T]) -> None:
         self.__queue = queue
 
-    def publish(self, message: T) -> None:
+    def publish(self, message: INCOMING_T) -> None:
         """
         Publish a message on the internal thread queue
 
@@ -64,7 +68,7 @@ class MessageQueue(Generic[T]):
 
     def listen(
         self, block: bool, timeout: float = 0.0
-    ) -> Optional[T]:
+    ) -> Optional[INCOMING_T]:
         """
         Listens on the internal message queue for a new Message.
         Can be blocking or non-blocking, based on whether
@@ -81,7 +85,7 @@ class MessageQueue(Generic[T]):
         """
 
         try:
-            msg: T = self.__queue.get(
+            msg: INCOMING_T = self.__queue.get(
                 block=block,
                 timeout=(timeout if timeout > 0 else None),
             )
@@ -91,7 +95,7 @@ class MessageQueue(Generic[T]):
             return None
 
 
-class Publisher(Generic[T]):
+class Publisher(Generic[OUTGOING_T]):
     """
     A base class that can be subclassed
     by any class that wants to act as a publisher.
@@ -113,10 +117,10 @@ class Publisher(Generic[T]):
         # be automatically garbage collected when no longer
         # needed
         self.__messageQueues: weakref.WeakSet[
-            MessageQueue[T]
+            MessageQueue[OUTGOING_T]
         ] = weakref.WeakSet()
 
-    def subscribe(self) -> MessageQueue[T]:
+    def subscribe(self) -> MessageQueue[OUTGOING_T]:
         """
         Constructs and returns a message queue
         that downstream code can listen on for
@@ -128,15 +132,19 @@ class Publisher(Generic[T]):
           can listen on.
         """
         # Construct proxy object and our MessageQueue
-        queueProxy: queue.Queue[T] = self.__queueManager.Queue()
-        newQueue: MessageQueue[T] = MessageQueue[T](queueProxy)
+        queueProxy: queue.Queue[
+            OUTGOING_T
+        ] = self.__queueManager.Queue()
+        newQueue: MessageQueue[OUTGOING_T] = MessageQueue[
+            OUTGOING_T
+        ](queueProxy)
 
         # Save a weak reference locally.
         self.__messageQueues.add(newQueue)
 
         return newQueue
 
-    def publish(self, message: T) -> None:
+    def publish(self, message: OUTGOING_T) -> None:
         """
         Iterates over all message queues
         that haven't yet been garbage collected
