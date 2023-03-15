@@ -33,7 +33,6 @@ class ORB_Detect_And_Compute(
 
     def __init__(self, numPoints: int) -> None:
         self.numPoints: int = numPoints
-        self.orb = cv2.ORB_create(nfeatures=numPoints)
 
         # Internal arrays to store keypoints and descriptors
         self.__keypoints: List[Keypoint] = []
@@ -46,6 +45,8 @@ class ORB_Detect_And_Compute(
         extractor these are done together, but since the API treats these
         as separate steps, simply return them separately.
         """
+        orb = cv2.ORB_create(nfeatures=self.numPoints)
+
         # Compute keypoints and descriptors with opencv
         kp: List[cv2.KeyPoint] = []
         des: np.ndarray = np.array([])
@@ -54,7 +55,7 @@ class ORB_Detect_And_Compute(
         bwPIL: Image = inImg.convert("L")
         bwImgMat: cv2.Mat = pillowToArray(bwPIL)
 
-        kp, des = self.orb.detectAndCompute(bwImgMat, None)
+        kp, des = orb.detectAndCompute(bwImgMat, None)
 
         # Convert both into PySLAM types
         for keyP in kp:

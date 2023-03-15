@@ -1,5 +1,4 @@
 from typing import Generic, TypeVar, List, Tuple
-import weakref
 
 from PIL.Image import Image
 import jax
@@ -46,21 +45,24 @@ def normalizeKeypointMatrix(
     inMatZeroMeaned: jnp.ndarray = inMat - meanPosition
 
     # Now, compute average distance from origin
-    averageMagnitude: float = jnp.mean(
+    averageMagnitude: jnp.ndarray = jnp.mean(
         jnp.linalg.norm(inMatZeroMeaned, axis=1)
-    ).item()
+    )
     # Apply isotropic(equal on both dimensions) normalization, s.t. that average
     # magnitude is sqrt(2). Non-isotropic and isotropic seem to have the same performance,
     # but this is easier to do.
-    scalingFactor: float = (2**0.5) / averageMagnitude
+    scalingFactor: jnp.ndarray = (2**0.5) / averageMagnitude
     inMatNormalized: jnp.ndarray = (
         inMatZeroMeaned * scalingFactor
     )
 
-    # Now, build the normalization matrix
-    translationMatrix: jnp.ndarray = jnp.eye(3)
-    translationMatrix[0][-1] = -1 * meanPosition[0]
-    translationMatrix[1][-1] = -1 * meanPosition[1]
+    translationMatrix: jnp.ndarray = jnp.array(
+        [
+            [1, 0, -1 * meanPosition[0]],
+            [0, 1, -1 * meanPosition[1]],
+            [0, 0, 1],
+        ]
+    )
 
     scalingMatrix: jnp.ndarray = jnp.eye(3) * scalingFactor
 
@@ -89,10 +91,6 @@ class ImageFeatures(Generic[T]):
         keypointExtractor: KeypointExtractor,
         descriptorExtractor: DescriptorExtractor[T],
     ) -> None:
-        # Storing our input image as a weakref; don't
-        # want to prevent garbage collection
-        self.inputImage = weakref.ref(inputImage)
-
         self.keypointExtractor: KeypointExtractor = (
             keypointExtractor
         )

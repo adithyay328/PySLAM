@@ -9,8 +9,15 @@ from PIL.Image import Image
 import numpy as np
 import cv2
 
-from pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches import Match, ImagePairMatches
-from pyslam.image_processing.cv_pillow import pillowToArray, arrayToPillowImage, PillowColorFormat
+from pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches import (
+    Match,
+    ImagePairMatches,
+)
+from pyslam.image_processing.cv_pillow import (
+    pillowToArray,
+    arrayToPillowImage,
+    PillowColorFormat,
+)
 from pyslam.image_processing.feature_descriptors.ImageFeatures import (
     ImageFeatures,
 )
@@ -19,7 +26,13 @@ from pyslam.image_processing.feature_descriptors.Keypoint import (
 )
 
 
-def drawStereoMatches(imgOne : Image, imgTwo : Image, imgOneFeatures : ImageFeatures, imgTwoFeatures : ImageFeatures, matches : ImagePairMatches) -> Image:
+def drawStereoMatches(
+    imgOne: Image,
+    imgTwo: Image,
+    imgOneFeatures: ImageFeatures,
+    imgTwoFeatures: ImageFeatures,
+    matches: ImagePairMatches,
+) -> Image:
     """
     This function uses OpenCV's drawing functionality to
     draw matches between images, and returns the image as
@@ -34,14 +47,31 @@ def drawStereoMatches(imgOne : Image, imgTwo : Image, imgOneFeatures : ImageFeat
     :return: Returns a Pillow image with the matches drawn onto it.
     """
     # First, we need both input images as numpy arrays
-    imgOneCV2 : np.ndarray = pillowToArray(imgOne)
-    imgTwoCV2 : np.ndarray = pillowToArray(imgTwo)
+    imgOneCV2: np.ndarray = pillowToArray(imgOne)
+    imgTwoCV2: np.ndarray = pillowToArray(imgTwo)
 
     # Here are the other 3 lists we need to pass into cv2 to
     # draw our matches
-    imgOneKeypoints : List[cv2.KeyPoint] = [cv2.KeyPoint(currImgOneKeypoint.coords[0], currImgOneKeypoint.coords[1], 1) for currImgOneKeypoint in imgOneFeatures.keypoints]
-    imgTwoKeypoints : List[cv2.KeyPoint] = [cv2.KeyPoint(currImgTwoKeypoint.coords[0], currImgTwoKeypoint.coords[1], 1) for currImgTwoKeypoint in imgTwoFeatures.keypoints]
-    cv2Matches : List[cv2.DMatch] = [cv2.DMatch(match.imgOneIdx, match.imgTwoIdx, 1) for match in matches.matches]
+    imgOneKeypoints: List[cv2.KeyPoint] = [
+        cv2.KeyPoint(
+            currImgOneKeypoint.coords[0],
+            currImgOneKeypoint.coords[1],
+            1,
+        )
+        for currImgOneKeypoint in imgOneFeatures.keypoints
+    ]
+    imgTwoKeypoints: List[cv2.KeyPoint] = [
+        cv2.KeyPoint(
+            currImgTwoKeypoint.coords[0],
+            currImgTwoKeypoint.coords[1],
+            1,
+        )
+        for currImgTwoKeypoint in imgTwoFeatures.keypoints
+    ]
+    cv2Matches: List[cv2.DMatch] = [
+        cv2.DMatch(match.imgOneIdx, match.imgTwoIdx, 1)
+        for match in matches.matches
+    ]
 
     # Now, we need to iterate through our matches,
     # and populate the match array
@@ -54,21 +84,28 @@ def drawStereoMatches(imgOne : Image, imgTwo : Image, imgOneFeatures : ImageFeat
     #     currImgTwoKeypoint : Keypoint = imgTwoFeatures.keypoints[match.imgTwoIdx]
 
     #     imgOneKeypoints.append(
-            
+
     #     )
     #     imgTwoKeypoints.append(
     #         cv2.KeyPoint(currImgTwoKeypoint.coords[0], currImgTwoKeypoint.coords[1], 1)
     #     )
-    
+
     print(len(imgOneKeypoints))
     print(len(imgTwoKeypoints))
-    
+
     # Now, we have everything we need. Draw it, and get the cv2 mat
-    drawnMat : np.ndarray = cv2.drawMatches(
-        imgOneCV2, imgOneKeypoints, imgTwoCV2, imgTwoKeypoints, cv2Matches, None
+    drawnMat: np.ndarray = cv2.drawMatches(
+        imgOneCV2,
+        imgOneKeypoints,
+        imgTwoCV2,
+        imgTwoKeypoints,
+        cv2Matches,
+        None,
     )
 
     # Convert drawnMat to RGB
-    drawnMatRGB : np.ndarray = cv2.cvtColor(drawnMat, cv2.COLOR_BGR2RGB)
+    drawnMatRGB: np.ndarray = cv2.cvtColor(
+        drawnMat, cv2.COLOR_BGR2RGB
+    )
 
     return arrayToPillowImage(drawnMatRGB, PillowColorFormat.RGB)
