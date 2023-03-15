@@ -1,0 +1,47 @@
+:py:mod:`pyslam.visualize.DrawScene`
+====================================
+
+.. py:module:: pyslam.visualize.DrawScene
+
+.. autoapi-nested-parse::
+
+   This module contains Pangolin Logic for visualizing
+   a full scene; cameras, points and all
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.visualize.DrawScene.PangolinScene
+
+
+
+
+.. py:class:: PangolinScene(width: int, height: int)
+
+   A class representing a Pangolin Window.
+
+   The way this visualiser is to be used,
+   since it's the design that makes the
+   most sense based on the underlying API,
+   is that client code calls the functions
+   on this class, which updates internal
+   state variables that indicate what's shown
+   on screen.
+
+   Whenever the pangolin frame re-draws, it
+   will take all the internal assets and
+   re-draw them(basicaly blit) onto the screen.
+   This allows updates to the scene at every
+   frame re-draw.
+
+   :param width: The width of the display, in pixels.
+   :param height: The height of the display, in pixels.
+
+

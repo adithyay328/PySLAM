@@ -10,8 +10,165 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
-   Error/index.rst
+   EpipolarModelCore/index.rst
+   Fundamental/index.rst
    HomographyErrors/index.rst
-   HomographyMatrix/index.rst
+   Homograpy/index.rst
 
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.epipolar_models.HomographyMatrix
+   pyslam.epipolar_models.FundamentalMatrix
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.epipolar_models.EpipolarModel
+
+
+.. py:class:: HomographyMatrix(imgOneFeatures: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures, imgTwoFeatures: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures)
+
+   Bases: :py:obj:`pyslam.optim.ransac.RANSACModel.RANSACModel`\ [\ :py:obj:`pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match`\ ], :py:obj:`pyslam.odometry.PoseTransformSource`
+
+   A class representing a HomographyMatrix that we
+   estimate from 2 cameras, whose image features are already
+   computed.`
+   :param imgOneFeatures: The image features
+       we detected from the first image.
+   :param imgTwoFeatures: The image features
+       we detected from the second image.
+
+   .. py:method:: fit(data: pyslam.optim.ransac.RANSACDataset.RANSACDataset[pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match])
+
+      Implements the fit function expected for RANSACModels.
+
+      This internally uses the direct linear transform
+      alorithm for solving for the homography, which requires
+      at-least 4 potential point matches; more can be used,
+      but we need atleast 4.
+
+      :param data: A RANSACDataset containing the proposed
+          matches to fit this model against.
+
+
+   .. py:method:: findInlierIndices(data: pyslam.optim.ransac.RANSACDataset.RANSACDataset[pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match]) -> numpy.ndarray
+      :abstractmethod:
+
+      Implements the find inlier indices function for RANSAC Models.
+
+      Since this function takes no paramaters apart from the data,
+      all the config related to what cost function to use have to be
+      passed in to the constructor of the homography matrix.
+
+      :param data: The RANSACDataset to determine inliers from.
+
+      :return: Returns a numpy int array with all indices
+          corresponding to inliers in the root dataset.
+
+
+
+.. py:class:: FundamentalMatrix(imgOneFeatures: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures, imgTwoFeatures: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures, intrinsics: numpy.ndarray, error: FundamentalError, inlierThresh: float)
+
+   Bases: :py:obj:`pyslam.optim.ransac.RANSACModel.RANSACModel`\ [\ :py:obj:`pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match`\ ], :py:obj:`pyslam.odometry.PoseTransformSource`
+
+   A class representing a Fundamental Matrix.
+
+   With this,
+   the motion hypothesis estimation logic for both the Essential and
+   Fundamental Matrices will be the same; namely, we can get 4 actual,
+   albeit not necessarily very good, solutions. Directly estimating
+   Pose Transformation from the Fundamental Matrix does not yield
+   good results, as they are defined up to a GENERAL PROJECTIVE
+   FACTOR, which is quite broad. Atleast with the Essential Matrix,
+   we can get geometrically useful results.
+
+   :param imgOneFeatures: The image features
+       we detected from the first image.
+   :param imgTwoFeatures: The image features
+       we detected from the second image.
+   :param intrinsics: A 3x3 matrix storing the intrinsics
+       of the camera we are looking at.
+   :param error: An error function that we can use internally
+       to decide which matches are inliers and which are not.
+       Expect return type of array, with each element corresponding
+       to the error of one match.
+   :param inlierThresh: A floating point value indicating the highest
+       error that we associate with an inlier. Any lower and we count it.
+
+   .. py:method:: fit(data: pyslam.optim.ransac.RANSACDataset.RANSACDataset[pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match])
+
+      Implements the fit function expected for RANSACModels.
+
+      This internally uses the normalized eight-point
+      algorithm for computing the fundamental matrix.
+
+      :param data: A RANSACDataset containing the proposed
+          matches to fit this model against.
+
+
+   .. py:method:: findInlierIndices(data: pyslam.optim.ransac.RANSACDataset.RANSACDataset[pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match]) -> numpy.ndarray
+
+      Implementation of the findInlierIndices interface required by
+      RANSAC Models.
+
+      Internally, we use the specific error function to find the error of each
+      proposed match, and we compare to some threshold; if lower, count as inlier.
+
+      :param data: A RANSACDataset of matches to compute inliers against. We assume
+          that this Dataset is the root dataset, i.e. the data array of matches
+          is the same order as what came out of our feature extractor.
+
+      :return: Returns a numpy array with all root indices of determined inliers.
+
+
+   .. py:method:: getTransform() -> pose3d.Transform
+
+      Implements the getTransform interface
+      to satisfy the PoseTransformSource interface.
+
+      Internally, this is implemented by
+      converting the fundamental
+      matrix into an approximately correct
+      essential matrix, and then using
+      the more powerful methods of pose estimation
+      available to essential matrices.
+
+      :return: Returns a Transform instance
+          corresponding to the believed
+
+
+   .. py:method:: getFirstEpipole(normalized: bool) -> numpy.ndarray
+
+      Computes and returns e, which is the epipole
+      in the first image.
+
+      :return: A 3x1 column vector containing the
+          vector of the first epipole.
+
+
+   .. py:method:: getSecondEpipole(normalized: bool) -> numpy.ndarray
+
+      Computes and returns e', which is the epipole
+      in the second image.
+
+      :return: A 3x1 column vector containing the
+          vector of the first epipole.
+
+
+
+.. py:data:: EpipolarModel
+
+   
 

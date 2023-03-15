@@ -169,9 +169,10 @@
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../epipolar_models/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../epipolar_models/Error/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.Error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../epipolar_models/EpipolarModelCore/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.EpipolarModelCore</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../epipolar_models/Fundamental/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.Fundamental</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../epipolar_models/HomographyErrors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.HomographyErrors</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../epipolar_models/HomographyMatrix/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.HomographyMatrix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../epipolar_models/Homograpy/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.Homograpy</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../image_processing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.image_processing</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -214,6 +215,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../systems/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.systems</span></code></a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../visualize/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../visualize/DrawFeatures/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.DrawFeatures</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../visualize/DrawMatches/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.DrawMatches</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../visualize/DrawScene/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.DrawScene</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../visualize/PyGameFrameWindow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.PyGameFrameWindow</span></code></a></li>
 </ul>
 </li>
@@ -275,6 +278,18 @@
 </table>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">#</a></h3>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.getModelAndInliers" title="pyslam.optim.ransac.RANSACEstimator.getModelAndInliers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getModelAndInliers</span></code></a>(...)</p></td>
+<td><p>A helper function that returns a fitted RANSACModel and its predicted inliers in one function.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="attributes">
 <h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading">#</a></h3>
 <div class="table-wrapper autosummary longtable docutils container">
@@ -291,23 +306,9 @@
 <span class="sig-prename descclassname"><span class="pre">pyslam.optim.ransac.RANSACEstimator.</span></span><span class="sig-name descname"><span class="pre">D</span></span><a class="headerlink" href="#pyslam.optim.ransac.RANSACEstimator.D" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="pyslam.optim.ransac.RANSACEstimator.RANSACEstimator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyslam.optim.ransac.RANSACEstimator.</span></span><span class="sig-name descname"><span class="pre">RANSACEstimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numWorkers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyslam.optim.ransac.RANSACEstimator.RANSACEstimator" title="Permalink to this definition">#</a></dt>
-<dd><p>A class responsible for estimating
-a RANSACModel from a RANSACDataset using
-a specified number of random iterations.
-Internally, all the constructor does is create
-a thread-pool for running estimation in parralel.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>numWorkers</strong> – The number of workers to instantiate
-in the internal ProcessPoolExecutor</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pyslam.optim.ransac.RANSACEstimator.RANSACEstimator.__getModelAndInliers">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__getModelAndInliers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullDataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACDataset" title="pyslam.optim.ransac.RANSACDataset"><span class="pre">pyslam.optim.ransac.RANSACDataset</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACDataset" title="pyslam.optim.ransac.RANSACDataset"><span class="pre">pyslam.optim.ransac.RANSACDataset</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelConstructor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACModel" title="pyslam.optim.ransac.RANSACModel"><span class="pre">pyslam.optim.ransac.RANSACModel</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACModel" title="pyslam.optim.ransac.RANSACModel"><span class="pre">pyslam.optim.ransac.RANSACModel</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pyslam.optim.ransac.RANSACEstimator.RANSACEstimator.__getModelAndInliers" title="Permalink to this definition">#</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyslam.optim.ransac.RANSACEstimator.getModelAndInliers">
+<span class="sig-prename descclassname"><span class="pre">pyslam.optim.ransac.RANSACEstimator.</span></span><span class="sig-name descname"><span class="pre">getModelAndInliers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullDataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACDataset" title="pyslam.optim.ransac.RANSACDataset"><span class="pre">pyslam.optim.ransac.RANSACDataset</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACDataset" title="pyslam.optim.ransac.RANSACDataset"><span class="pre">pyslam.optim.ransac.RANSACDataset</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelInstance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACModel" title="pyslam.optim.ransac.RANSACModel"><span class="pre">pyslam.optim.ransac.RANSACModel</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACModel" title="pyslam.optim.ransac.RANSACModel"><span class="pre">pyslam.optim.ransac.RANSACModel</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pyslam.optim.ransac.RANSACEstimator.getModelAndInliers" title="Permalink to this definition">#</a></dt>
 <dd><p>A helper function that returns a fitted RANSACModel and its predicted inliers in one function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -327,6 +328,20 @@ configuration paramaters, etc.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="pyslam.optim.ransac.RANSACEstimator.RANSACEstimator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyslam.optim.ransac.RANSACEstimator.</span></span><span class="sig-name descname"><span class="pre">RANSACEstimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numWorkers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyslam.optim.ransac.RANSACEstimator.RANSACEstimator" title="Permalink to this definition">#</a></dt>
+<dd><p>A class responsible for estimating
+a RANSACModel from a RANSACDataset using
+a specified number of random iterations.
+Internally, all the constructor does is create
+a thread-pool for running estimation in parralel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>numWorkers</strong> – The number of workers to instantiate
+in the internal ProcessPoolExecutor</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyslam.optim.ransac.RANSACEstimator.RANSACEstimator.fit">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACDataset" title="pyslam.optim.ransac.RANSACDataset"><span class="pre">pyslam.optim.ransac.RANSACDataset</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelConstructor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACModel" title="pyslam.optim.ransac.RANSACModel"><span class="pre">pyslam.optim.ransac.RANSACModel</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataPointsPerIteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../index.html#pyslam.optim.ransac.RANSACModel" title="pyslam.optim.ransac.RANSACModel"><span class="pre">pyslam.optim.ransac.RANSACModel</span></a><span class="p"><span class="pre">[</span></span><span class="pre">D</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pyslam.optim.ransac.RANSACEstimator.RANSACEstimator.fit" title="Permalink to this definition">#</a></dt>
@@ -337,7 +352,7 @@ all of the inliers determined by the best initial model.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – The RANSACDataset to fit to.</p></li>
-<li><p><strong>modelConstructor</strong> – A function tha takes no paramaters
+<li><p><strong>modelConstructor</strong> – A function that takes no paramaters
 and returns an instance of the RANSACModel type we are trying to fit.
 Allows client code to use partial functions to pass in paramaters
 required by the constructor of the RANASCModel; these could be
@@ -401,16 +416,17 @@ inliers.</p></li>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.optim.ransac.RANSACEstimator</span></code></a><ul>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.D"><code class="docutils literal notranslate"><span class="pre">D</span></code></a></li>
+<li><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.getModelAndInliers"><code class="docutils literal notranslate"><span class="pre">getModelAndInliers()</span></code></a></li>
 <li><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.RANSACEstimator"><code class="docutils literal notranslate"><span class="pre">RANSACEstimator</span></code></a><ul>
-<li><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.RANSACEstimator.__getModelAndInliers"><code class="docutils literal notranslate"><span class="pre">RANSACEstimator.__getModelAndInliers()</span></code></a></li>
 <li><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.RANSACEstimator.fit"><code class="docutils literal notranslate"><span class="pre">RANSACEstimator.fit()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.D">D</a></li>
+<li><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.getModelAndInliers">getModelAndInliers</a></li>
 <li><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.RANSACEstimator">RANSACEstimator</a><ul>
-<li><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.RANSACEstimator.__getModelAndInliers">__getModelAndInliers</a></li>
 <li><a class="reference internal" href="#pyslam.optim.ransac.RANSACEstimator.RANSACEstimator.fit">fit</a></li>
 </ul>
 </li>

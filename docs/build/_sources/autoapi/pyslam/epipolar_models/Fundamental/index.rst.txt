@@ -1,0 +1,173 @@
+:py:mod:`pyslam.epipolar_models.Fundamental`
+============================================
+
+.. py:module:: pyslam.epipolar_models.Fundamental
+
+.. autoapi-nested-parse::
+
+   Contains definitions and logic related to the Essential and
+   Fundamental Matrices. Since they're both inter-related,
+   it makes sense to define them both together.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.epipolar_models.Fundamental.FundamentalError
+   pyslam.epipolar_models.Fundamental.FundamentalMatrix
+   pyslam.epipolar_models.Fundamental.FundamentalSymetricTransferError
+
+
+
+
+.. py:class:: FundamentalError
+
+   Bases: :py:obj:`abc.ABC`
+
+   A base class representing an error that
+   can be applied to a Fundamental/Essential Matrix.
+
+   .. py:method:: computeError(fundamentalMatrix: FundamentalMatrix, matches: pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.ImagePairMatches) -> jax.numpy.ndarray
+      :staticmethod:
+      :abstractmethod:
+
+      An abstract method that all Fundamental Matrix
+      Errors should implement.
+
+      :param fundamentalMatrix: The Fundamental Matrix to compute
+          the error for.
+      :param matches: Proposed matches between the 2 ImageFeatures
+          instances that are stored in the fundamental matrix class.
+
+      :return: Returns a jax numpy array, where the ith element of the
+          array is the error corresponding to the ith match passed in.
+          If you want the total you can sum the array, but if you want
+          match level errors you have it.
+
+
+
+.. py:class:: FundamentalMatrix(imgOneFeatures: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures, imgTwoFeatures: pyslam.image_processing.feature_descriptors.ImageFeatures.ImageFeatures, intrinsics: numpy.ndarray, error: FundamentalError, inlierThresh: float)
+
+   Bases: :py:obj:`pyslam.optim.ransac.RANSACModel.RANSACModel`\ [\ :py:obj:`pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match`\ ], :py:obj:`pyslam.odometry.PoseTransformSource`
+
+   A class representing a Fundamental Matrix.
+
+   With this,
+   the motion hypothesis estimation logic for both the Essential and
+   Fundamental Matrices will be the same; namely, we can get 4 actual,
+   albeit not necessarily very good, solutions. Directly estimating
+   Pose Transformation from the Fundamental Matrix does not yield
+   good results, as they are defined up to a GENERAL PROJECTIVE
+   FACTOR, which is quite broad. Atleast with the Essential Matrix,
+   we can get geometrically useful results.
+
+   :param imgOneFeatures: The image features
+       we detected from the first image.
+   :param imgTwoFeatures: The image features
+       we detected from the second image.
+   :param intrinsics: A 3x3 matrix storing the intrinsics
+       of the camera we are looking at.
+   :param error: An error function that we can use internally
+       to decide which matches are inliers and which are not.
+       Expect return type of array, with each element corresponding
+       to the error of one match.
+   :param inlierThresh: A floating point value indicating the highest
+       error that we associate with an inlier. Any lower and we count it.
+
+   .. py:method:: fit(data: pyslam.optim.ransac.RANSACDataset.RANSACDataset[pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match])
+
+      Implements the fit function expected for RANSACModels.
+
+      This internally uses the normalized eight-point
+      algorithm for computing the fundamental matrix.
+
+      :param data: A RANSACDataset containing the proposed
+          matches to fit this model against.
+
+
+   .. py:method:: findInlierIndices(data: pyslam.optim.ransac.RANSACDataset.RANSACDataset[pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.Match]) -> numpy.ndarray
+
+      Implementation of the findInlierIndices interface required by
+      RANSAC Models.
+
+      Internally, we use the specific error function to find the error of each
+      proposed match, and we compare to some threshold; if lower, count as inlier.
+
+      :param data: A RANSACDataset of matches to compute inliers against. We assume
+          that this Dataset is the root dataset, i.e. the data array of matches
+          is the same order as what came out of our feature extractor.
+
+      :return: Returns a numpy array with all root indices of determined inliers.
+
+
+   .. py:method:: getTransform() -> pose3d.Transform
+
+      Implements the getTransform interface
+      to satisfy the PoseTransformSource interface.
+
+      Internally, this is implemented by
+      converting the fundamental
+      matrix into an approximately correct
+      essential matrix, and then using
+      the more powerful methods of pose estimation
+      available to essential matrices.
+
+      :return: Returns a Transform instance
+          corresponding to the believed
+
+
+   .. py:method:: getFirstEpipole(normalized: bool) -> numpy.ndarray
+
+      Computes and returns e, which is the epipole
+      in the first image.
+
+      :return: A 3x1 column vector containing the
+          vector of the first epipole.
+
+
+   .. py:method:: getSecondEpipole(normalized: bool) -> numpy.ndarray
+
+      Computes and returns e', which is the epipole
+      in the second image.
+
+      :return: A 3x1 column vector containing the
+          vector of the first epipole.
+
+
+
+.. py:class:: FundamentalSymetricTransferError
+
+   Bases: :py:obj:`FundamentalError`
+
+   This class implements the symetric transfer error for
+   fundamental/essential matrices. This is quite an important
+   error, since it has a close analog with the symetric
+   transfer error for the homography matrix, and some systems
+   (like ORB-SLAMv1) use this to automatically change between
+   them.
+
+   .. py:method:: computeError(fundamentalMatrix: FundamentalMatrix, matches: pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches.ImagePairMatches) -> jax.numpy.ndarray
+      :staticmethod:
+
+      Implements the Symetric Transfer Error for Fundamental Matrices.
+      This corresponds to Algorithm 11.3
+      "The Gold Standard algorithm for estimating F from image correspondences"
+      in Zisserman's book "Multiple View Geometry in Computer Vision".
+
+      Internally, this uses epipoles and points that are normalized.
+
+      :param fundamentalMatrix: The Fundamental Matrix to compute
+          the error for.
+      :param matches: Proposed matches between the 2 ImageFeatures
+          instances that are stored in the fundamental matrix class.
+
+      :return: Return a floating point error quantity.
+
+
+

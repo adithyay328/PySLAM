@@ -1,0 +1,45 @@
+:py:mod:`pyslam.epipolar_models.EpipolarModelCore`
+==================================================
+
+.. py:module:: pyslam.epipolar_models.EpipolarModelCore
+
+.. autoapi-nested-parse::
+
+   This module implements core logic for epipolar
+   models.
+
+   Implements a base error class to define
+   error functions for epipolar models, among
+   other things.
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pyslam.epipolar_models.EpipolarModelCore.triangulatePoint
+
+
+
+.. py:function:: triangulatePoint(p1: jax.numpy.ndarray, p2: jax.numpy.ndarray, pointOne: jax.numpy.ndarray, pointTwo: jax.numpy.ndarray) -> jax.numpy.ndarray
+
+   A function that takes 2 cameras, and 2 Keypoints corresponding to the same point in 3D,
+   and triangulates the point in 3D.
+
+   :param p1: The camera matrix of the first camera; assumed to be 3x4.
+   :param p2: The camera matrix of the second camera; assumed to be 3x4.
+   :param pointOne: The projection of the point onto the first camera, as a heterogenous 2D
+       numpy array.
+   :param pointTwo: The projection of the point onto the second camera, as a heterogenous 2D
+       numpy array.
+
+   :return: A 3-tall column vector representing the point's 3D position, in heterogenous
+       coordinates.
+
+

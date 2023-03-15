@@ -62,30 +62,35 @@ Attributes
 
 .. autoapisummary::
 
-   pyslam.pubsub.T
+   pyslam.pubsub.INCOMING_T
+   pyslam.pubsub.OUTGOING_T
 
 
-.. py:data:: T
+.. py:data:: INCOMING_T
 
    
 
-.. py:class:: MessageQueue(queue: MessageQueue.__init__.queue[T])
+.. py:data:: OUTGOING_T
 
-   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ]
+   
+
+.. py:class:: MessageQueue(queue: MessageQueue.__init__.queue[INCOMING_T])
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`INCOMING_T`\ ]
 
    A MessageQueue with typing on received messages.
    Queues must be passed in, as they are expectd to be
    proxy objects managed by a Multiprocessing Manager. Without that,
    they can't be pickled, which restricts their use.
 
-   .. py:method:: publish(message: T) -> None
+   .. py:method:: publish(message: INCOMING_T) -> None
 
       Publish a message on the internal thread queue
 
       :param message: The message to publish on this queue.
 
 
-   .. py:method:: listen(block: bool, timeout: float = 0.0) -> Optional[T]
+   .. py:method:: listen(block: bool, timeout: float = 0.0) -> Optional[INCOMING_T]
 
       Listens on the internal message queue for a new Message.
       Can be blocking or non-blocking, based on whether
@@ -104,7 +109,7 @@ Attributes
 
 .. py:class:: Publisher
 
-   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ]
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`OUTGOING_T`\ ]
 
    A base class that can be subclassed
    by any class that wants to act as a publisher.
@@ -112,7 +117,7 @@ Attributes
    which allows resultant MessageQueues to be used
    accross threads easily.
 
-   .. py:method:: subscribe() -> MessageQueue[T]
+   .. py:method:: subscribe() -> MessageQueue[OUTGOING_T]
 
       Constructs and returns a message queue
       that downstream code can listen on for
@@ -124,7 +129,7 @@ Attributes
         can listen on.
 
 
-   .. py:method:: publish(message: T) -> None
+   .. py:method:: publish(message: OUTGOING_T) -> None
 
       Iterates over all message queues
       that haven't yet been garbage collected

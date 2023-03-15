@@ -169,9 +169,10 @@
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../epipolar_models/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../epipolar_models/Error/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.Error</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../epipolar_models/EpipolarModelCore/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.EpipolarModelCore</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../epipolar_models/Fundamental/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.Fundamental</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../epipolar_models/HomographyErrors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.HomographyErrors</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../epipolar_models/HomographyMatrix/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.HomographyMatrix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../epipolar_models/Homograpy/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.epipolar_models.Homograpy</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../image_processing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.image_processing</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -214,6 +215,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../systems/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.systems</span></code></a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../visualize/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../visualize/DrawFeatures/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.DrawFeatures</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../visualize/DrawMatches/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.DrawMatches</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../visualize/DrawScene/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.DrawScene</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../visualize/PyGameFrameWindow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyslam.visualize.PyGameFrameWindow</span></code></a></li>
 </ul>
 </li>
@@ -276,7 +279,7 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyslam.optim.procedures.homogenousMatrixLeastSquares" title="pyslam.optim.procedures.homogenousMatrixLeastSquares"><code class="xref py py-obj docutils literal notranslate"><span class="pre">homogenousMatrixLeastSquares</span></code></a>(→ numpy.ndarray)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyslam.optim.procedures.homogenousMatrixLeastSquares" title="pyslam.optim.procedures.homogenousMatrixLeastSquares"><code class="xref py py-obj docutils literal notranslate"><span class="pre">homogenousMatrixLeastSquares</span></code></a>(→ jax.numpy.ndarray)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -284,7 +287,7 @@
 </div>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyslam.optim.procedures.homogenousMatrixLeastSquares">
-<span class="sig-prename descclassname"><span class="pre">pyslam.optim.procedures.</span></span><span class="sig-name descname"><span class="pre">homogenousMatrixLeastSquares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inMat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#pyslam.optim.procedures.homogenousMatrixLeastSquares" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pyslam.optim.procedures.</span></span><span class="sig-name descname"><span class="pre">homogenousMatrixLeastSquares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inMat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax.numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">jax.numpy.ndarray</span></span></span><a class="headerlink" href="#pyslam.optim.procedures.homogenousMatrixLeastSquares" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </section>

@@ -19,6 +19,7 @@ Classes
 .. autoapisummary::
 
    pyslam.epipolar_models.HomographyErrors.HomographyError
+   pyslam.epipolar_models.HomographyErrors.HomographySymetricTransferError
 
 
 
@@ -28,5 +29,14 @@ Classes
    Bases: :py:obj:`abc.ABC`
 
    A base class representing an error that
+   can be applied to a Homography Matrix.
+
+
+.. py:class:: HomographySymetricTransferError
+
+   Bases: :py:obj:`HomographyError`
+
+   This class implements the symetric transfer error,
+   which is used for homography matrices
 
 
