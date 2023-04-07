@@ -23,6 +23,7 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.napoleon",
     "autoapi.extension",
+    "myst_parser",
 ]
 
 # Set paths for auto-api

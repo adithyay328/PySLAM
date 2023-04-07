@@ -8,7 +8,7 @@ from pyslam.optim.ransac import RANSACDataset
 T = TypeVar("T")
 
 
-class RANSACModel(ABC, Generic[T]):
+class RANSACModel(Generic[T], ABC):
     """An abstract class representing some kind of model
     that we wish to estimate using RANSAC against some
     RANSACDataset. The generic type it takes in defines

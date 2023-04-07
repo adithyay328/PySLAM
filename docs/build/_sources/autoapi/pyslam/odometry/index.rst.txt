@@ -5,22 +5,41 @@
 
 .. autoapi-nested-parse::
 
-   This module defines base types related to odometry.
-   Mainly, it defines an abstract base class,
-   PoseTransformSource, which is to be sub-classed by
-   any type that allows us to extract relative poses
-   between 2 timesteps.
+   Odometry is defined as the use of data
+   from various kinds of sensors, such as IMUs,
+   cameras and LiDar point clouds, to estimate
+   relative motion between 2 poses over time.
+   As such, all logic relevant to odometry is
+   stored in this module.
 
-   A simple example would be a Fundamental Matrix;
-   once we have a fundamental matrix, we can do
-   pose estimation, using the four possible solutions
-   for the poses to extract a single, correct
-   relative pose.
+   When we say "Pose", we are concerned with the robot/
+   sensor's position and orientation w.r.t some coordinate
+   frame with a defined origin. We are usually interested
+   in the 3D case, but this module also allows use in 2D
+   SLAM problems.
 
 
 
-Module Contents
----------------
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   visual_odometry/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   PoseTransformSource/index.rst
+
+
+Package Contents
+----------------
 
 Classes
 ~~~~~~~

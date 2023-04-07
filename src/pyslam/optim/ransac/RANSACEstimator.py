@@ -76,7 +76,7 @@ class RANSACEstimator:
         all of the inliers determined by the best initial model.
 
         :param data: The RANSACDataset to fit to.
-        :param modelConstructor: A function tha takes no paramaters
+        :param modelConstructor: A function that takes no paramaters
           and returns an instance of the RANSACModel type we are trying to fit.
           Allows client code to use partial functions to pass in paramaters
           required by the constructor of the RANASCModel; these could be

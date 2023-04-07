@@ -19,7 +19,6 @@ Submodules
 
    DrawFeatures/index.rst
    DrawMatches/index.rst
-   DrawScene/index.rst
    PyGameFrameWindow/index.rst
 
 

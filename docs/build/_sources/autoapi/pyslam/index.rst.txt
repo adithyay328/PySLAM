@@ -12,8 +12,8 @@ Subpackages
 
    common_capture/index.rst
    demos/index.rst
-   epipolar_models/index.rst
    image_processing/index.rst
+   odometry/index.rst
    optim/index.rst
    systems/index.rst
    visualize/index.rst
@@ -26,7 +26,6 @@ Submodules
    :maxdepth: 1
 
    capture/index.rst
-   odometry/index.rst
    pubsub/index.rst
    uid/index.rst
 

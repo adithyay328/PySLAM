@@ -26,6 +26,6 @@ Functions
 
 
 
-.. py:function:: homogenousMatrixLeastSquares(inMat: jax.numpy.ndarray) -> jax.numpy.ndarray
+.. py:function:: homogenousMatrixLeastSquares(inMat: numpy.ndarray) -> numpy.ndarray
 
 

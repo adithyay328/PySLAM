@@ -16,14 +16,6 @@ Classes
 
 
 
-Functions
-~~~~~~~~~
-
-.. autoapisummary::
-
-   pyslam.optim.ransac.RANSACEstimator.getModelAndInliers
-
-
 
 Attributes
 ~~~~~~~~~~
@@ -37,21 +29,6 @@ Attributes
 
    
 
-.. py:function:: getModelAndInliers(fullDataset: pyslam.optim.ransac.RANSACDataset[D], subset: pyslam.optim.ransac.RANSACDataset[D], modelInstance: pyslam.optim.ransac.RANSACModel[D]) -> Tuple[pyslam.optim.ransac.RANSACModel[D], numpy.ndarray]
-
-   A helper function that returns a fitted RANSACModel and its predicted inliers in one function.
-
-   :param fullDataset: The full dataset we were given.
-   :param subset: A sub-set of the dataset to fit the model to.
-   :param modelConstructor: A function tha takes no paramaters
-     and returns an instance of the RANSACModel type we are trying to fit.
-     Allows client code to use partial functions to pass in paramaters
-     required by the constructor of the RANASCModel; these could be
-     configuration paramaters, etc.
-
-   :return: Returns a tuple of (estimated model, numpy array of inlier indices)
-
-
 .. py:class:: RANSACEstimator(numWorkers: int)
 
    A class responsible for estimating
@@ -63,6 +40,22 @@ Attributes
    :param numWorkers: The number of workers to instantiate
      in the internal ProcessPoolExecutor
 
+   .. py:method:: __getModelAndInliers(fullDataset: pyslam.optim.ransac.RANSACDataset[D], subset: pyslam.optim.ransac.RANSACDataset[D], modelConstructor: Callable[[], pyslam.optim.ransac.RANSACModel[D]]) -> Tuple[pyslam.optim.ransac.RANSACModel[D], numpy.ndarray]
+      :staticmethod:
+
+      A helper function that returns a fitted RANSACModel and its predicted inliers in one function.
+
+      :param fullDataset: The full dataset we were given.
+      :param subset: A sub-set of the dataset to fit the model to.
+      :param modelConstructor: A function tha takes no paramaters
+        and returns an instance of the RANSACModel type we are trying to fit.
+        Allows client code to use partial functions to pass in paramaters
+        required by the constructor of the RANASCModel; these could be
+        configuration paramaters, etc.
+
+      :return: Returns a tuple of (estimated model, numpy array of inlier indices)
+
+
    .. py:method:: fit(data: pyslam.optim.ransac.RANSACDataset[D], modelConstructor: Callable[[], pyslam.optim.ransac.RANSACModel[D]], iterations: int, dataPointsPerIteration: int, refit: bool) -> pyslam.optim.ransac.RANSACModel[D]
       :async:
 
@@ -71,7 +64,7 @@ Attributes
       all of the inliers determined by the best initial model.
 
       :param data: The RANSACDataset to fit to.
-      :param modelConstructor: A function that takes no paramaters
+      :param modelConstructor: A function tha takes no paramaters
         and returns an instance of the RANSACModel type we are trying to fit.
         Allows client code to use partial functions to pass in paramaters
         required by the constructor of the RANASCModel; these could be

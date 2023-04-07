@@ -9,12 +9,13 @@ Welcome to PySLAM's documentation!
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
+   :hidden:
 
 
 
-Indices and tables
-==================
+.. Indices and tables
+.. ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
