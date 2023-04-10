@@ -4,16 +4,18 @@
 # matrix A using the SVD.
 
 import numpy as np
+import jax
+import jax.numpy as jnp
 
 
 def homogenousMatrixLeastSquares(
-    inMat: np.ndarray,
-) -> np.ndarray:
+    inMat: jax.Array,
+) -> jax.Array:
     # Solve for homography using SVD; basically, pick the row of Vt
     # that corresponds to the smallest singular value. This is,
     # by the construction of the SVD, always the last row
     # of vt
 
-    _, _, vt = np.linalg.svd(inMat)
+    _, _, vt = jnp.linalg.svd(inMat)
 
     return vt[-1]

@@ -24,8 +24,8 @@ T = TypeVar("T", bound=Descriptor)
 
 @jax.jit
 def normalizeKeypointMatrix(
-    inMat: jnp.ndarray,
-) -> Tuple[jnp.ndarray, jnp.ndarray]:
+    inMat: jax.Array,
+) -> Tuple[jax.Array, jax.Array]:
     """
     Given an input keypoint matrix, applies normalization, and returns a tuple of
     (normalized points, normalization matrix.)
@@ -41,22 +41,24 @@ def normalizeKeypointMatrix(
     """
 
     # First, zero-mean
-    meanPosition: jnp.ndarray = jnp.mean(inMat, axis=0)
-    inMatZeroMeaned: jnp.ndarray = inMat - meanPosition
+    meanPosition: jax.Array = jnp.mean(inMat, axis=0)
+
+    inMatZeroMeaned: jax.Array = inMat - meanPosition
 
     # Now, compute average distance from origin
-    averageMagnitude: jnp.ndarray = jnp.mean(
+    averageMagnitude: jax.Array = jnp.mean(
         jnp.linalg.norm(inMatZeroMeaned, axis=1)
     )
+
     # Apply isotropic(equal on both dimensions) normalization, s.t. that average
     # magnitude is sqrt(2). Non-isotropic and isotropic seem to have the same performance,
     # but this is easier to do.
-    scalingFactor: jnp.ndarray = (2**0.5) / averageMagnitude
-    inMatNormalized: jnp.ndarray = (
+    scalingFactor: jax.Array = (2**0.5) / averageMagnitude
+    inMatNormalized: jax.Array = (
         inMatZeroMeaned * scalingFactor
     )
 
-    translationMatrix: jnp.ndarray = jnp.array(
+    translationMatrix: jax.Array = jnp.array(
         [
             [1, 0, -1 * meanPosition[0]],
             [0, 1, -1 * meanPosition[1]],
@@ -64,9 +66,13 @@ def normalizeKeypointMatrix(
         ]
     )
 
-    scalingMatrix: jnp.ndarray = jnp.eye(3) * scalingFactor
+    scalingMatrix: jax.Array = jnp.array(
+        [[scalingFactor, 0, 0],
+        [0, scalingFactor, 0],
+        [0, 0, 1]]
+    )
 
-    normalizationMatrix: jnp.ndarray = (
+    normalizationMatrix: jax.Array = (
         scalingMatrix @ translationMatrix
     )
 
@@ -113,8 +119,16 @@ class ImageFeatures(Generic[T]):
         self.normalizedKeypoints: List[Keypoint] = []
         # JNP array that goes from un-normalized to
         # normalized keypoints
-        self.normalizeMat: jnp.ndarray = jnp.array([])
+        self.normalizeMat: jax.Array = jnp.array([])
 
+    # TODO: Build a unit test that
+    # verifies that the normalization
+    # matrix is correct, by applying
+    # it to a set of keypoints, and
+    # verifying that the average distance
+    # from the origin is sqrt(2) and zero-meaned.
+    # Also check if its similar to the
+    # return normalized point matrix.
     def buildNormalizedKeypoints(self) -> None:
         """
         Takes the current list of keypoints,
@@ -126,17 +140,9 @@ class ImageFeatures(Generic[T]):
                 "Normalized keypoints is already populated!"
             )
 
-        # TODO Right now, we're converting keypoints from a list
-        # of objects to a JNP array, doing JNP JIT operations, and
-        # then converting back to the keypoint object representation;
-        # consider just making the numpy array the standard form. More
-        # space efficient and no need for conversions like this, but
-        # less explicit than a specific type. I guess a question between
-        # readability and performance(chose readability in most cases...)
-
         # A JNP array of all our keypoints as hetergenous coordinate
         # vectors
-        jnpKeypointArray: jnp.ndarray = jnp.vstack(
+        jnpKeypointArray: jax.Array = jnp.vstack(
             [kp.asHeterogenous() for kp in self.keypoints]
         )
 

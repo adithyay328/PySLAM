@@ -2,7 +2,7 @@
 This module contains types and logic related to computing
 matching pairs of Features accross Images.
 """
-from typing import List
+from typing import List, Tuple
 
 import cv2
 import numpy as np
@@ -13,6 +13,9 @@ from pyslam.image_processing.feature_descriptors.ImageFeatures import (
 from pyslam.image_processing.feature_descriptors.descriptors.ORB import (
     ORB,
 )
+
+from pyslam.image_processing.feature_descriptors.Keypoint import Keypoint
+from pyslam.optim.ransac.RANSACDataset import RANSACDataset
 
 
 class Match:
@@ -99,14 +102,17 @@ class ImagePairMatches:
                 imageOneDescArray, imageTwoDescArray, k=2
             )
 
-            for matchOne, matchTwo in matches:
+            for match in matches:
+                if len(match) != 2:
+                    continue
+                matchOne, matchTwo = match
                 # Lowe's Ratio Test here; check if
                 # the first match has a distance that
                 # is noticably smaller than matchTwo,
                 # since that indicates that it is a
                 # decisive match, rather than just another
                 # bad match
-                LOWES_DISTANCE_REQUIREMENT: float = 0.7
+                LOWES_DISTANCE_REQUIREMENT: float = 0.8
                 if (
                     matchOne.distance
                     < LOWES_DISTANCE_REQUIREMENT
@@ -119,3 +125,26 @@ class ImagePairMatches:
                     )
         else:
             raise NotImplementedError
+    
+    def toRANSACDataset(self, normalized : bool) -> RANSACDataset[Tuple[Keypoint, Keypoint]]:
+        """
+        Constructs a RANSAC dataset from the matches
+        that can be used to compute an epipolar model.
+
+        :param normalized: Whether or not to use
+            normalized keypoints for the RANSAC dataset.
+
+        :return: A RANSACDataset object containing the matched
+            keypoints.
+        """
+        if normalized:
+            assert len(self.imageFeaturesOne.normalizedKeypoints) > 0
+
+        data : List[Tuple[Keypoint, Keypoint]] = []
+        for match in self.matches:
+            if normalized:
+                data.append( (self.imageFeaturesOne.normalizedKeypoints[match.imgOneIdx], self.imageFeaturesTwo.normalizedKeypoints[match.imgTwoIdx]) )
+            else:
+                data.append( (self.imageFeaturesOne.keypoints[match.imgOneIdx], self.imageFeaturesTwo.keypoints[match.imgTwoIdx]) )
+        dataset : RANSACDataset[Tuple[Keypoint, Keypoint]] = RANSACDataset(data, None)
+        return dataset

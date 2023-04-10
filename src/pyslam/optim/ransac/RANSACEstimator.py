@@ -9,16 +9,42 @@ from typing import (
 )
 from concurrent.futures import (
     ProcessPoolExecutor,
-    Future,
     as_completed,
 )
+
 import asyncio
+from asyncio import Future
 
 import numpy as np
 
 from pyslam.optim.ransac import RANSACModel, RANSACDataset
 
 D = TypeVar("D")
+
+def getModelAndInliers(
+        fullDataset: RANSACDataset[D],
+        subset: RANSACDataset[D],
+        model: RANSACModel[D],
+    ) -> Tuple[RANSACModel[D], np.ndarray]:
+        """
+        A helper function that returns a fitted RANSACModel and its predicted inliers in one function.
+
+        :param fullDataset: The full dataset we were given.
+        :param subset: A sub-set of the dataset to fit the model to.
+        :param modelConstructor: A function tha takes no paramaters
+          and returns an instance of the RANSACModel type we are trying to fit.
+          Allows client code to use partial functions to pass in paramaters
+          required by the constructor of the RANASCModel; these could be
+          configuration paramaters, etc.
+
+        :return: Returns a tuple of (estimated model, numpy array of inlier indices)
+        """
+        model.fit(subset)
+        inliers: np.ndarray = model.findInlierIndices(
+            fullDataset
+        )
+
+        return (model, inliers)
 
 
 class RANSACEstimator:
@@ -34,33 +60,6 @@ class RANSACEstimator:
 
     def __init__(self, numWorkers: int):
         self.__processPool = ProcessPoolExecutor(numWorkers)
-
-    @staticmethod
-    def __getModelAndInliers(
-        fullDataset: RANSACDataset[D],
-        subset: RANSACDataset[D],
-        modelConstructor: Callable[[], RANSACModel[D]],
-    ) -> Tuple[RANSACModel[D], np.ndarray]:
-        """
-        A helper function that returns a fitted RANSACModel and its predicted inliers in one function.
-
-        :param fullDataset: The full dataset we were given.
-        :param subset: A sub-set of the dataset to fit the model to.
-        :param modelConstructor: A function tha takes no paramaters
-          and returns an instance of the RANSACModel type we are trying to fit.
-          Allows client code to use partial functions to pass in paramaters
-          required by the constructor of the RANASCModel; these could be
-          configuration paramaters, etc.
-
-        :return: Returns a tuple of (estimated model, numpy array of inlier indices)
-        """
-        modelInstance: RANSACModel[D] = modelConstructor()
-        modelInstance.fit(subset)
-        inliers: np.ndarray = modelInstance.findInlierIndices(
-            fullDataset
-        )
-
-        return (modelInstance, inliers)
 
     async def fit(
         self,
@@ -99,6 +98,7 @@ class RANSACEstimator:
         futureObjects: List[Future] = []
 
         # Queue up n iterations of RANSAC
+        loop = asyncio.get_running_loop()
         for i in range(iterations):
             # For each iteration of RANSAC, get a random sub-set
             randomSubset = data.getRandomSubsample(
@@ -107,25 +107,17 @@ class RANSACEstimator:
 
             # Now, get a future object representing this iteration,
             # and add it to the list
-            futureObjects.append(
-                self.__processPool.submit(
-                    self.__getModelAndInliers,
-                    fullDataset=data,
-                    subset=randomSubset,
-                    modelConstructor=modelConstructor,
-                )
+            futureObj = loop.run_in_executor(
+                self.__processPool,
+                getModelAndInliers,
+                data, randomSubset, modelConstructor()
             )
 
-        modelIterator = as_completed(futureObjects)
-
-        # Now, await for the next complete iteration's results
-        getNextModel = lambda it: next(it)
+            futureObjects.append(futureObj)
 
         # Now, wait for all the models to be estimated, and keep the best one
-        for i in range(iterations):
-            nextModel, nextInliers = await asyncio.to_thread(
-                getNextModel(modelIterator)
-            )
+        for future in futureObjects:
+            nextModel, nextInliers = await future
 
             # Keep this model only if there are more inliers
             if bestInliers is None or len(bestInliers) < len(

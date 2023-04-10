@@ -10,6 +10,8 @@ and relative pose estimation.
 from typing import List, Tuple
 
 import numpy as np
+import jax.numpy as jnp
+import jax
 
 from pyslam.camera_matrix import Camera
 from pyslam.image_processing.feature_descriptors.Keypoint import (
@@ -91,9 +93,9 @@ def triangulatePoints(
                 camTwoRowTwo,
             )
         )
-        point: np.ndarray = homogenousMatrixLeastSquares(
-            constraintMatrix
-        )
+        point: np.ndarray = np.array(homogenousMatrixLeastSquares(
+            jnp.array(constraintMatrix)
+        ))
 
         # Now, we can normalize the point
         # and add it to the results
@@ -121,7 +123,7 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         """
         Fits the fundamental matrix to the specified
         RANSACDataset. Always use normalized coordinates
-        as the input to this; these can be extacted
+        as the input to this; these can be extracted
         from ImageFeatues instances easily.
 
         :param data: The dataset to fit the fundamental
@@ -168,9 +170,9 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
         # Now, we can get the solution
         # for the fundamental matrix
-        solMat = homogenousMatrixLeastSquares(
-            constraintMatrix
-        ).reshape(3, 3)
+        solMat : np.ndarray = np.array(homogenousMatrixLeastSquares(
+            jnp.array(constraintMatrix)
+        ).reshape(3, 3))
 
         # Now, we can get the SVD of the
         # solution matrix to
@@ -194,12 +196,12 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         :param pointOne: The first point.
         :param pointTwo: The second point.
 
-        :return: The symetric transfer error for
+        :return: The symetric epipolar error for
             this pair of points.
         """
         # Make sure our matrix is
         # initialized
-        assert self.matrix != np.eye(3)
+        assert not ((self.matrix == np.eye(3)).all())
 
         # First, we need to get the
         # point in image one
@@ -210,27 +212,32 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         x2 = pointTwo.asHeterogenous()[0]
         y2 = pointTwo.asHeterogenous()[1]
 
+        x1_H = np.array([x1, y1, 1])
+        x2_H = np.array([x2, y2, 1])
+
         # Get epipolar lines
         epipolarLineOne: np.ndarray = (
-            self.matrix @ pointOne.asHeterogenous()
+            self.matrix @ pointOne.asHomogenous()
         )
         epipolarLineTwo: np.ndarray = (
-            self.matrix.T @ pointTwo.asHeterogenous()
+            self.matrix.T @ pointTwo.asHomogenous()
         )
 
         # Now, we can compute the transfer
         # error for each point, which is the
         # magnitude of the distance between
         # the point and the epipolar line
-        transferErrorOne: float = (
-            abs(np.dot(epipolarLineOne, np.array([x2, y2, 1])))
-        ) / ( (epipolarLineOne[0] ** 2 + epipolarLineOne[1] ** 2) ** 0.5)
-        transferErrorTwo: float = (
-            abs(np.dot(epipolarLineTwo, np.array([x1, y1, 1])))
-        ) / ( (epipolarLineTwo[0] ** 2 + epipolarLineTwo[1] ** 2) ** 0.5)
-        
+        transferError = (
+            (np.dot(x2_H, self.matrix @ x1_H) ** 2)
+            * ( 
+            (1 / ( np.linalg.norm(self.matrix @ x1_H, ord=1) ** 2 + np.linalg.norm(self.matrix.T @ x1_H, ord=2) ** 2 )) 
+            + ( 1 / ( np.linalg.norm(self.matrix.T @ x2_H, ord=1) ** 2 + np.linalg.norm(self.matrix.T @ x2_H, ord=2) ** 2 ))
+            )
+        )
 
-        return transferErrorOne + transferErrorTwo
+        return transferError
+
+        
 
     def findInlierIndices(
         self,
@@ -245,21 +252,27 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
         :return: Root indices that are determined to be inliers.
         """
-        rootIndices : List[int] = []
+        rootIndices: List[int] = []
 
         for i in range(len(data.indices)):
-            error : float = self.symetricTransferError(data.indices[i][0], data.indices[i][1])
+            error: float = self.symetricTransferError(
+                data.data[i][0], data.data[i][1]
+            )
             if error <= self.threshold:
                 rootIndices.append(int(data.indices[i]))
-        
+
         return np.array(rootIndices)
 
-    def unnormalize(self, imageOneScalingMat : np.ndarray, imageTwoScalingMat : np.ndarray) -> np.ndarray:
+    def unnormalize(
+        self,
+        imageOneScalingMat: np.ndarray,
+        imageTwoScalingMat: np.ndarray,
+    ) -> np.ndarray:
         """
         Unnormalizes the fundamental matrix. This is done by
         right multiplying the fundamental matrix by the
         the scaling matrix for the first image, and then left
-        multiplying by the transpose of the scaling 
+        multiplying by the transpose of the scaling
         matrix for the second image.
 
         :param imageOneScalingMat: The scaling matrix for the
@@ -269,7 +282,13 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
         :return: The unnormalized fundamental matrix.
         """
-        return imageTwoScalingMat.T @ self.matrix @ imageOneScalingMat
+
+        return (
+            imageTwoScalingMat.T
+            @ self.matrix
+            @ imageOneScalingMat
+        )
+
 
 class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
     def __init__(self, threshold: float) -> None:
@@ -351,11 +370,11 @@ class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         # Now, we can get the solution
         # for the homography matrix
         solMat = homogenousMatrixLeastSquares(
-            constraintMatrix
+            jnp.array(constraintMatrix)
         ).reshape(3, 3)
 
-        self.matrix = solMat
-    
+        self.matrix = np.array(solMat)
+
     def symetricTransferError(
         self, pointOne: Keypoint, pointTwo: Keypoint
     ) -> float:
@@ -373,7 +392,7 @@ class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         """
         # Make sure our matrix is
         # initialized
-        assert self.matrix != np.eye(3)
+        # assert not ((self.matrix == np.eye(3)).all())
 
         # Predict point in each image first.
         predictedPoint_imgTwo: np.ndarray = (
@@ -384,20 +403,28 @@ class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         )
 
         # Convert to heterogenous
-        predictedPoint_imgTwo = predictedPoint_imgTwo[0:2] / predictedPoint_imgTwo[2]
-        predictedPoint_imgOne = predictedPoint_imgOne[0:2] / predictedPoint_imgOne[2]
+        predictedPoint_imgTwo = (
+            predictedPoint_imgTwo[0:2] / np.hstack((predictedPoint_imgTwo[-1], predictedPoint_imgTwo[-1]))
+        )
+        predictedPoint_imgOne = (
+            predictedPoint_imgOne[0:2] / np.hstack((predictedPoint_imgOne[-1], predictedPoint_imgOne[-1]))
+        )
 
         # Now, we can compute the transfer
         # error for each point, which is the
         # magnitude of the distance between
         # the given point and the predicted point
-        transferErrorOne: float = float(np.linalg.norm(
-            pointOne.asHeterogenous() - predictedPoint_imgOne
-        ))
+        transferErrorOne: float = float(
+            np.linalg.norm(
+                pointOne.asHeterogenous() - predictedPoint_imgOne
+            ) ** 2
+        )
 
-        transferErrorTwo: float = float(np.linalg.norm(
-            pointTwo.asHeterogenous() - predictedPoint_imgTwo
-        ))
+        transferErrorTwo: float = float(
+            np.linalg.norm(
+                pointTwo.asHeterogenous() - predictedPoint_imgTwo
+            ) ** 2
+        )
 
         return transferErrorOne + transferErrorTwo
 
@@ -414,21 +441,27 @@ class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
         :return: Root indices that are determined to be inliers.
         """
-        rootIndices : List[int] = []
+        rootIndices: List[int] = []
 
         for i in range(len(data.indices)):
-            error : float = self.symetricTransferError(data.indices[i][0], data.indices[i][1])
+            error: float = self.symetricTransferError(
+                data.data[i][0], data.data[i][1]
+            )
             if error <= self.threshold:
                 rootIndices.append(int(data.indices[i]))
-        
+
         return np.array(rootIndices)
 
-    def unnormalize(self, imageOneScalingMat : np.ndarray, imageTwoScalingMat : np.ndarray) -> np.ndarray:
+    def unnormalize(
+        self,
+        imageOneScalingMat: np.ndarray,
+        imageTwoScalingMat: np.ndarray,
+    ) -> np.ndarray:
         """
         Unnormalizes the homography matrix. This is done by
         right multiplying the homography matrix by the
         the scaling matrix for the first image, and then left
-        multiplying by the transpose of the scaling 
+        multiplying by the transpose of the scaling
         matrix for the second image.
 
         :param imageOneScalingMat: The scaling matrix for the
@@ -438,4 +471,8 @@ class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
         :return: The unnormalized homography matrix.
         """
-        return imageTwoScalingMat.T @ self.matrix @ imageOneScalingMat
+        return (
+            imageTwoScalingMat.T
+            @ self.matrix
+            @ imageOneScalingMat
+        )

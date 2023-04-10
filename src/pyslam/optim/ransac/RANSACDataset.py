@@ -32,7 +32,7 @@ class RANSACDataset(Generic[T]):
             np.array([i for i in range(len(self.data))])
             if indices is None
             else indices
-        )
+        ).flatten()
 
         # One thing we'll build right now, for performance, are 2
         # dicts, one allowing us to do a lookup of root idx -> idx in this array,
@@ -61,9 +61,9 @@ class RANSACDataset(Generic[T]):
         """
         data: List[T] = []
 
-        for rootIdx in indices:
+        for rootIdx in indices.flatten():
             data.append(
-                self.data[self.rootIdxToDataIdx[rootIdx]]
+                self.data[self.rootIdxToDataIdx[int(rootIdx)]]
             )
 
         return RANSACDataset[T](data, indices)
