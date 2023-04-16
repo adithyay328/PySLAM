@@ -12,7 +12,8 @@ from pyslam.image_processing.feature_descriptors.ImageFeatures import (
     ImageFeatures,
 )
 from pyslam.image_processing.feature_descriptors.ImagePairFeatureMatches import (
-    ImagePairMatches, Match
+    ImagePairMatches,
+    Match,
 )
 from pyslam.image_processing.cv_pillow import (
     pillowToArray,
@@ -26,7 +27,9 @@ from pyslam.optim.ransac import (
     RANSACEstimator,
 )
 
-from pyslam.image_processing.feature_descriptors.Keypoint import Keypoint
+from pyslam.image_processing.feature_descriptors.Keypoint import (
+    Keypoint,
+)
 
 """
 Contains functions and logic for visualizations
@@ -44,8 +47,12 @@ def drawlines(img1, img2, lines, pts1, pts2):
         x0, y0 = map(int, [0, -r[2] / r[1]])
         x1, y1 = map(int, [c, -(r[2] + r[0] * c) / r[1]])
         img1 = cv2.line(img1, (x0, y0), (x1, y1), color, 1)
-        img1 = cv2.circle(img1, (int(pt1[0]), int(pt1[1])), 3, color, -1)
-        img2 = cv2.circle(img2, (int(pt2[0]), int(pt2[1])), 3, color, -1)
+        img1 = cv2.circle(
+            img1, (int(pt1[0]), int(pt1[1])), 3, color, -1
+        )
+        img2 = cv2.circle(
+            img2, (int(pt2[0]), int(pt2[1])), 3, color, -1
+        )
     return img1, img2
 
 
@@ -55,7 +62,7 @@ def drawEpipolarLines(
     imgOneFeatures: ImageFeatures,
     imgTwo: Image,
     imgTwoFeatures: ImageFeatures,
-    matches : ImagePairMatches,
+    matches: ImagePairMatches,
 ) -> Image:
     """
     Given two images and their respective features, draw the epipolar lines
@@ -96,12 +103,26 @@ def drawEpipolarLines(
     # )
 
     # Get all inlier points from the F-matrix
-    ransacDataset : RANSACDataset[Tuple[Keypoint, Keypoint]] = matches.toRANSACDataset(True)
-    inlierIndices : np.ndarray = fMat.findInlierIndices(ransacDataset)
+    ransacDataset: RANSACDataset[
+        Tuple[Keypoint, Keypoint]
+    ] = matches.toRANSACDataset(True)
+    inlierIndices: np.ndarray = fMat.findInlierIndices(
+        ransacDataset
+    )
     print(f"Found {len(inlierIndices)} inliers")
 
-    inlierPtsOne : np.ndarray = np.vstack([imgOneFeatures.keypoints[i].asHomogenous() for i in inlierIndices])
-    inlierPtsTwo : np.ndarray = np.vstack([imgTwoFeatures.keypoints[i].asHomogenous() for i in inlierIndices])
+    inlierPtsOne: np.ndarray = np.vstack(
+        [
+            imgOneFeatures.keypoints[i].asHomogenous()
+            for i in inlierIndices
+        ]
+    )
+    inlierPtsTwo: np.ndarray = np.vstack(
+        [
+            imgTwoFeatures.keypoints[i].asHomogenous()
+            for i in inlierIndices
+        ]
+    )
 
     # Draw epipolar lines using the opencv snippet
     # above; first, convert all keypoints to numpy arrays
@@ -139,10 +160,13 @@ def drawEpipolarLines(
     )
 
     # Concatenate the images horizontally
-    concatenatedImage = np.hstack((imageOneWithLines, imageTwoWithLines))
+    concatenatedImage = np.hstack(
+        (imageOneWithLines, imageTwoWithLines)
+    )
 
     # Convert the concatenated image back to a Pillow image
     return arrayToPillowImage(concatenatedImage, colorMode)
+
 
 def drawHomographyHypotheses(
     hMat: HomographyMatrix,
@@ -150,7 +174,7 @@ def drawHomographyHypotheses(
     imgOneFeatures: ImageFeatures,
     imgTwo: Image,
     imgTwoFeatures: ImageFeatures,
-    matches : ImagePairMatches,
+    matches: ImagePairMatches,
 ) -> Image:
     """
     Given two images and their respective features, draw the homography
@@ -185,7 +209,7 @@ def drawHomographyHypotheses(
         else PillowColorFormat.L
     )
 
-    #Get the un-normalized homography matrix
+    # Get the un-normalized homography matrix
     # hMatUnNorm: np.ndarray = hMat.unnormalize(
     #     np.array(imgOneFeatures.normalizeMat),
     #     np.array(imgTwoFeatures.normalizeMat),
@@ -197,11 +221,20 @@ def drawHomographyHypotheses(
 
     # Get all inlier points in the
     # first image
-    ransacDataset : RANSACDataset[Tuple[Keypoint, Keypoint]] = matches.toRANSACDataset(True)
-    inlierIndices : np.ndarray = hMat.findInlierIndices(ransacDataset)
-    
-    imageOneInlierKeypoints: np.ndarray = np.vstack([imgOneFeatures.keypoints[i].asHomogenous() for i in inlierIndices])
-    
+    ransacDataset: RANSACDataset[
+        Tuple[Keypoint, Keypoint]
+    ] = matches.toRANSACDataset(True)
+    inlierIndices: np.ndarray = hMat.findInlierIndices(
+        ransacDataset
+    )
+
+    imageOneInlierKeypoints: np.ndarray = np.vstack(
+        [
+            imgOneFeatures.keypoints[i].asHomogenous()
+            for i in inlierIndices
+        ]
+    )
+
     # First, get all keypoints in the first image
     imageOneKeypoints: np.ndarray = np.array(
         [kp.asHomogenous() for kp in imgOneFeatures.keypoints]
@@ -215,8 +248,14 @@ def drawHomographyHypotheses(
 
     # Now, turn the predicted keypoints into
     # heterogeneous coordinates
-    imageTwoPredicted_Heterogenous : np.ndarray = (
-        imageTwoPredictedKeypoints[:, :2] / np.vstack((imageTwoPredictedKeypoints[:, -1], imageTwoPredictedKeypoints[:, -1])).T
+    imageTwoPredicted_Heterogenous: np.ndarray = (
+        imageTwoPredictedKeypoints[:, :2]
+        / np.vstack(
+            (
+                imageTwoPredictedKeypoints[:, -1],
+                imageTwoPredictedKeypoints[:, -1],
+            )
+        ).T
     )
 
     # print(imageOneKeypoints)
@@ -236,7 +275,7 @@ def drawHomographyHypotheses(
             (0, 0, 255),
             -1,
         )
-    
+
     # Now, draw onto the first image
     imageOneWithPredictions = cv2MatOne.copy()
     for kp in imageOneKeypoints:
@@ -247,9 +286,11 @@ def drawHomographyHypotheses(
             (0, 0, 255),
             -1,
         )
-    
+
     # Concatenate the images horizontally
-    concatenatedImage = np.hstack((imageOneWithPredictions, imageTwoWithPredictions))
-    
+    concatenatedImage = np.hstack(
+        (imageOneWithPredictions, imageTwoWithPredictions)
+    )
+
     # Convert the concatenated image back to a Pillow image
     return arrayToPillowImage(concatenatedImage, colorMode)

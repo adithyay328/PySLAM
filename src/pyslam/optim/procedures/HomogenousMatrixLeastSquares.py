@@ -3,11 +3,12 @@
 # linear least squares problem for a given
 # matrix A using the SVD.
 
-import numpy as np
 import jax
 import jax.numpy as jnp
 
 
+@jax.jit
+@jax.vmap
 def homogenousMatrixLeastSquares(
     inMat: jax.Array,
 ) -> jax.Array:

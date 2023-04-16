@@ -14,7 +14,9 @@ from pyslam.image_processing.feature_descriptors.descriptors.ORB import (
     ORB,
 )
 
-from pyslam.image_processing.feature_descriptors.Keypoint import Keypoint
+from pyslam.image_processing.feature_descriptors.Keypoint import (
+    Keypoint,
+)
 from pyslam.optim.ransac.RANSACDataset import RANSACDataset
 
 
@@ -125,8 +127,10 @@ class ImagePairMatches:
                     )
         else:
             raise NotImplementedError
-    
-    def toRANSACDataset(self, normalized : bool) -> RANSACDataset[Tuple[Keypoint, Keypoint]]:
+
+    def toRANSACDataset(
+        self, normalized: bool
+    ) -> RANSACDataset[Tuple[Keypoint, Keypoint]]:
         """
         Constructs a RANSAC dataset from the matches
         that can be used to compute an epipolar model.
@@ -138,13 +142,36 @@ class ImagePairMatches:
             keypoints.
         """
         if normalized:
-            assert len(self.imageFeaturesOne.normalizedKeypoints) > 0
+            assert (
+                len(self.imageFeaturesOne.normalizedKeypoints)
+                > 0
+            )
 
-        data : List[Tuple[Keypoint, Keypoint]] = []
+        data: List[Tuple[Keypoint, Keypoint]] = []
         for match in self.matches:
             if normalized:
-                data.append( (self.imageFeaturesOne.normalizedKeypoints[match.imgOneIdx], self.imageFeaturesTwo.normalizedKeypoints[match.imgTwoIdx]) )
+                data.append(
+                    (
+                        self.imageFeaturesOne.normalizedKeypoints[
+                            match.imgOneIdx
+                        ],
+                        self.imageFeaturesTwo.normalizedKeypoints[
+                            match.imgTwoIdx
+                        ],
+                    )
+                )
             else:
-                data.append( (self.imageFeaturesOne.keypoints[match.imgOneIdx], self.imageFeaturesTwo.keypoints[match.imgTwoIdx]) )
-        dataset : RANSACDataset[Tuple[Keypoint, Keypoint]] = RANSACDataset(data, None)
+                data.append(
+                    (
+                        self.imageFeaturesOne.keypoints[
+                            match.imgOneIdx
+                        ],
+                        self.imageFeaturesTwo.keypoints[
+                            match.imgTwoIdx
+                        ],
+                    )
+                )
+        dataset: RANSACDataset[
+            Tuple[Keypoint, Keypoint]
+        ] = RANSACDataset(data, None)
         return dataset

@@ -29,6 +29,12 @@ faiss-cpu = "^1.7.3"
 myst-parser = "^1.0.0"
 transforms3d = "^0.4.1"
 torch = "^2.0.0"
+dask = "^2023.4.0"
+kornia = "^0.6.11"
+open3d = "^0.17.0"
+scikit-learn = "^1.2.2"
+addict = "^2.4.0"
+tqdm = "^4.65.0"
 
 
 [build-system]

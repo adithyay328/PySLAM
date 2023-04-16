@@ -90,7 +90,6 @@ def drawStereoMatches(
     #         cv2.KeyPoint(currImgTwoKeypoint.coords[0], currImgTwoKeypoint.coords[1], 1)
     #     )
 
-
     # Now, we have everything we need. Draw it, and get the cv2 mat
     drawnMat: np.ndarray = cv2.drawMatches(
         imgOneCV2,

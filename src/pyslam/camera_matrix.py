@@ -19,13 +19,11 @@ class Camera:
         intrinsics: np.ndarray,
         translation: np.ndarray = np.zeros(3),
         rotation: np.ndarray = np.eye(3),
-        scaling: np.ndarray = np.array([1, 1, 1]),
-        shearing: np.ndarray = np.zeros(3),
     ):
-        self.extrinsics: np.ndarray = (
-            transforms3d.affines.compose(
-                translation, rotation, scaling, shearing
-            )
+        self.rotation = rotation
+        self.translation = translation
+        self.extrinsics: np.ndarray = np.hstack(
+            (rotation, translation.reshape(3, 1))
         )
         self.intrinsics: np.ndarray = intrinsics
 

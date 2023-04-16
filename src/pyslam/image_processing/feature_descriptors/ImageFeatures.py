@@ -54,9 +54,7 @@ def normalizeKeypointMatrix(
     # magnitude is sqrt(2). Non-isotropic and isotropic seem to have the same performance,
     # but this is easier to do.
     scalingFactor: jax.Array = (2**0.5) / averageMagnitude
-    inMatNormalized: jax.Array = (
-        inMatZeroMeaned * scalingFactor
-    )
+    inMatNormalized: jax.Array = inMatZeroMeaned * scalingFactor
 
     translationMatrix: jax.Array = jnp.array(
         [
@@ -67,9 +65,7 @@ def normalizeKeypointMatrix(
     )
 
     scalingMatrix: jax.Array = jnp.array(
-        [[scalingFactor, 0, 0],
-        [0, scalingFactor, 0],
-        [0, 0, 1]]
+        [[scalingFactor, 0, 0], [0, scalingFactor, 0], [0, 0, 1]]
     )
 
     normalizationMatrix: jax.Array = (

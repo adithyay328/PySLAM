@@ -6,8 +6,16 @@ geometry.
 Implements estimation of fundamental
 and homography matrices, triangulation
 and relative pose estimation.
+
+There are some assumptions we make
+about how epipolar models are scored.
+The main thing is that we are going
+to compute a score per match hypothesis,
+and inliers are simply points whose score
+is below a certain threshold.
 """
-from typing import List, Tuple
+from typing import List, Tuple, Callable, Optional
+import logging
 
 import numpy as np
 import jax.numpy as jnp
@@ -19,6 +27,83 @@ from pyslam.image_processing.feature_descriptors.Keypoint import (
 )
 from pyslam.optim.procedures import homogenousMatrixLeastSquares
 from pyslam.optim.ransac import RANSACModel, RANSACDataset
+
+
+# @jax.jit
+def _jaxTriangulatePoints(
+    c1: jax.Array,
+    c2: jax.Array,
+    pointsOne: jax.Array,
+    pointsTwo: jax.Array,
+) -> jax.Array:
+    """
+    An inner function that uses
+    JAX for fast trangulation.
+    Use the triangulatePoints
+    function as a nice interface to this
+
+    :param c1: The first camera involved.
+    :param c2: The second camera involved.
+    :param pointsOne: A list of Keypoints seen in camera one.
+    :param pointsTwo: A list of Keypoints seen in camera two. These should
+        be ordered such that the nth Keypoint in points one corresponds
+        to the nth Keypoint in pointsTwo
+
+    :return: Returns a jax array of size(n, 1, 4), where n is the number
+        of world coordinates. The 4 is because this procedure yields
+        homogenous coordinates.
+    """
+    # First, extract both camera rows
+    camOnep1T = c1[0, :].T
+    camOnep2T = c1[1, :].T
+    camOnep3T = c1[2, :].T
+
+    camTwop1T = c2[0, :].T
+    camTwop2T = c2[1, :].T
+    camTwop3T = c2[2, :].T
+
+    # Now, build all the matrices
+    # we're going to run homogenous
+    # least squares on. Each matrix
+    # provides constraints for triangulation
+    # of a single point
+    triangulationMats: List[jax.Array] = []
+
+    for i in range(len(pointsOne)):
+        # Extract all point x's and y's
+        x1 = pointsOne[i][0]
+        y1 = pointsOne[i][1]
+
+        x2 = pointsTwo[i][0]
+        y2 = pointsTwo[i][1]
+
+        # Build out the constraint rows
+        # for each camera
+        camOneRowOne = y1 * camOnep3T - camOnep2T
+        camOneRowTwo = camOnep1T - x1 * camOnep3T
+        camTwoRowOne = y2 * camTwop3T - camTwop2T
+        camTwoRowTwo = camTwop1T - x2 * camTwop3T
+
+        # Now, we can h-stack these four
+        # rows to get the constraint matrix
+        # for this point
+        triangulationMats.append(
+            jnp.vstack(
+                (
+                    camOneRowOne,
+                    camOneRowTwo,
+                    camTwoRowOne,
+                    camTwoRowTwo,
+                )
+            )
+        )
+
+    # Now, we can stack all of them into
+    # a single matrix and run homogenous
+    # least squares on it
+    return homogenousMatrixLeastSquares(
+        jnp.array(triangulationMats)
+    )
 
 
 def triangulatePoints(
@@ -41,81 +126,89 @@ def triangulatePoints(
     :return: Returns a list of 3D world points following triangulation; these
         are in heterogenous coordinates
     """
-    results: List[np.ndarray] = []
 
     assert len(pointsOne) == len(pointsTwo)
 
-    for idx in range(len(pointsOne)):
-        # Build out matrix to perform
-        # homogenous LLS on
+    # We're going to use JAX to speed up
+    # the triangulation process. To use
+    # that logic, convert all
+    # inputs to pure jax arrays
+    c1Jax = jnp.array(c1.cameraMat)
+    c2Jax = jnp.array(c2.cameraMat)
+    pointsOne_Jax_Heterogenous = jnp.array(
+        [p.asHeterogenous() for p in pointsOne]
+    )
+    pointsTwo_Jax_Heterogenous = jnp.array(
+        [p.asHeterogenous() for p in pointsTwo]
+    )
 
-        # For each camera, we need the same
-        # set of constraints, which we can
-        # then h-stack and get the solution
-        # for
+    # Now, run the JAX triangulation
+    # function
+    triangulatedPoints = _jaxTriangulatePoints(
+        c1Jax,
+        c2Jax,
+        pointsOne_Jax_Heterogenous,
+        pointsTwo_Jax_Heterogenous,
+    )
 
-        # First, camera one:
-
-        # Get row's and transpose them
-        camOnep1T = c1.cameraMat[0, :].T
-        camOnep2T = c1.cameraMat[1, :].T
-        camOnep3T = c1.cameraMat[2, :].T
-
-        # Now, get x and y for the point
-        # in image one
-        x1 = pointsOne[idx].asHeterogenous()[0]
-        y1 = pointsOne[idx].asHeterogenous()[1]
-
-        # Now, build out the constraint matrix
-        camOneRowOne: np.ndarray = y1 * camOnep3T - camOnep2T
-        camOneRowTwo: np.ndarray = camOnep1T - x1 * camOnep3T
-
-        # Now, repeat all of the above, but
-        # for camera two
-        camTwop1T = c2.cameraMat[0, :].T
-        camTwop2T = c2.cameraMat[1, :].T
-        camTwop3T = c2.cameraMat[2, :].T
-
-        x2 = pointsTwo[idx].asHeterogenous()[0]
-        y2 = pointsTwo[idx].asHeterogenous()[1]
-
-        camTwoRowOne: np.ndarray = y2 * camTwop3T - camTwop2T
-        camTwoRowTwo: np.ndarray = camTwop1T - x2 * camTwop3T
-
-        # Now, we can h-stack these two
-        # matrices and get the solution
-        # for the point
-        constraintMatrix: np.ndarray = np.hstack(
-            (
-                camOneRowOne,
-                camOneRowTwo,
-                camTwoRowOne,
-                camTwoRowTwo,
-            )
+    # First, reshape into (nx4)
+    triangulatedPointsReshaped = np.array(
+        triangulatedPoints.reshape(-1, 4)
+    )
+    # Now, divide by last dimension and convert to heterogenous
+    triangulatedPointsHet = triangulatedPointsReshaped[:, :3] / (
+        np.hstack(
+            [triangulatedPointsReshaped[:, -1].reshape(-1, 1)]
+            * 3
         )
-        point: np.ndarray = np.array(homogenousMatrixLeastSquares(
-            jnp.array(constraintMatrix)
-        ))
+    )
 
-        # Now, we can normalize the point
-        # and add it to the results
-        results.append(point[0:3] / point[3])
+    # Now, convert the results back
+    # to numpy arrays, and split to make it a list
+    return np.vsplit(triangulatedPointsHet, len(pointsOne))
 
-    return results
+
+# TODO: Clean up the interface for
+# epipolar models; really messy
+# right now
 
 
 class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
-    def __init__(self, threshold: float) -> None:
+    def __init__(
+        self,
+        threshold: float,
+        errorFunction: Callable[
+            ["FundamentalMatrix"],
+            Callable[[Keypoint, Keypoint], float],
+        ],
+        scoreFunction: Callable[
+            ["FundamentalMatrix"],
+            Callable[[List[Tuple[Keypoint, Keypoint]]], float],
+        ],
+    ) -> None:
         """
         Implements a model for estimating a fundamental
         matrix from a set of points.
 
         :param threshold: The threshold to use for determining
             whether a point is an inlier or not.
+        :param errorFunction: The function to use for computing
+            the error between a single point and the model.
+        :param scoreFunction: A function that takes in
+            a list of errors for different match hypotheses,
+            and outputs a single score for the model.
         """
         super().__init__()
         self.matrix: np.ndarray = np.eye(3)
         self.threshold: float = threshold
+        self.errorFunction: Callable[
+            ["FundamentalMatrix"],
+            Callable[[Keypoint, Keypoint], float],
+        ] = errorFunction
+        self.scoreFunction: Callable[
+            ["FundamentalMatrix"],
+            Callable[[List[Tuple[Keypoint, Keypoint]]], float],
+        ] = scoreFunction
 
     def fit(
         self, data: RANSACDataset[Tuple[Keypoint, Keypoint]]
@@ -168,11 +261,19 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
                 ]
             )
 
+        # Add one outer dimension, since the homog. LLS
+        # operates on batches
+        constraintMatrix = np.expand_dims(
+            constraintMatrix, axis=0
+        )
+
         # Now, we can get the solution
         # for the fundamental matrix
-        solMat : np.ndarray = np.array(homogenousMatrixLeastSquares(
-            jnp.array(constraintMatrix)
-        ).reshape(3, 3))
+        solMat: np.ndarray = np.array(
+            homogenousMatrixLeastSquares(
+                jnp.array(constraintMatrix)
+            ).reshape(3, 3)
+        )
 
         # Now, we can get the SVD of the
         # solution matrix to
@@ -184,25 +285,29 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         # and set it as the matrix
         self.matrix = u @ np.diag(s) @ v
 
-    def symetricTransferError(
-        self, pointOne: Keypoint, pointTwo: Keypoint
-    ) -> float:
+    @staticmethod
+    def getSymetricTransferErrorPair(
+        fMat: "FundamentalMatrix",
+        pointOne: Keypoint,
+        pointTwo: Keypoint,
+    ) -> Tuple[float, float]:
         """
-        Computes the symetric transfer error between
-        two points. This is actually the symetric
+        Computes the symetric transfer error
+        between two points. This is actually the symetric
         epipolar error, but in literature such as ORB-SLAM
         this name is abused as the symetric transfer error.
 
+        :param fMat: The fundamental matrix to use.
         :param pointOne: The first point.
         :param pointTwo: The second point.
 
         :return: The symetric epipolar error for
-            this pair of points.
+            this pair of points, as a tuple of
+            (errorOne, errorTwo). The first error
+            is the error for the first point, and
+            the second error is the error for the
+            second point.
         """
-        # Make sure our matrix is
-        # initialized
-        assert not ((self.matrix == np.eye(3)).all())
-
         # First, we need to get the
         # point in image one
         x1 = pointOne.asHeterogenous()[0]
@@ -215,29 +320,74 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         x1_H = np.array([x1, y1, 1])
         x2_H = np.array([x2, y2, 1])
 
-        # Get epipolar lines
-        epipolarLineOne: np.ndarray = (
-            self.matrix @ pointOne.asHomogenous()
-        )
-        epipolarLineTwo: np.ndarray = (
-            self.matrix.T @ pointTwo.asHomogenous()
-        )
-
         # Now, we can compute the transfer
         # error for each point, which is the
         # magnitude of the distance between
         # the point and the epipolar line
-        transferError = (
-            (np.dot(x2_H, self.matrix @ x1_H) ** 2)
-            * ( 
-            (1 / ( np.linalg.norm(self.matrix @ x1_H, ord=1) ** 2 + np.linalg.norm(self.matrix.T @ x1_H, ord=2) ** 2 )) 
-            + ( 1 / ( np.linalg.norm(self.matrix.T @ x2_H, ord=1) ** 2 + np.linalg.norm(self.matrix.T @ x2_H, ord=2) ** 2 ))
+        transferErrorOne = (
+            np.dot(x2_H, fMat.matrix @ x1_H) ** 2
+        ) * (
+            (
+                1
+                / (
+                    np.linalg.norm(fMat.matrix @ x1_H, ord=1)
+                    ** 2
+                    + np.linalg.norm(fMat.matrix.T @ x1_H, ord=2)
+                    ** 2
+                )
+            )
+        )
+        transferErrorTwo = (
+            np.dot(x1_H, fMat.matrix.T @ x2_H) ** 2
+        ) * (
+            (
+                1
+                / (
+                    np.linalg.norm(fMat.matrix.T @ x2_H, ord=1)
+                    ** 2
+                    + np.linalg.norm(fMat.matrix.T @ x2_H, ord=2)
+                    ** 2
+                )
             )
         )
 
-        return transferError
+        return float(transferErrorOne), float(transferErrorTwo)
 
-        
+    @staticmethod
+    def symetricTransferError(
+        fMat: "FundamentalMatrix",
+    ) -> Callable[[Keypoint, Keypoint], float]:
+        """
+        Returns a callable that computes
+        the symetric transfer error between
+        two points. This is actually the symetric
+        epipolar error, but in literature such as ORB-SLAM
+        this name is abused as the symetric transfer error.
+        We return a Callable since the model itself
+        expects a Callable as an error function, so
+        this is really a builder for that function.
+
+        :param fMat: The fundamental matrix to use.
+        :param pointOne: The first point.
+        :param pointTwo: The second point.
+
+        :return: The symetric epipolar error for
+            this pair of points.
+        """
+        # Make sure our matrix is
+        # initialized
+        assert not ((fMat.matrix == np.eye(3)).all())
+
+        def returnFunc(
+            pointOne: Keypoint, pointTwo: Keypoint
+        ) -> float:
+            return sum(
+                fMat.getSymetricTransferErrorPair(
+                    fMat, pointOne, pointTwo
+                )
+            )
+
+        return returnFunc
 
     def findInlierIndices(
         self,
@@ -245,8 +395,13 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
     ) -> np.ndarray:
         """
         Finds the indices of the inliers in the dataset.
-        This is done by computing the symetric transfer error
-        for points, and restrict to some threshold.
+        This is done by computing an error function
+        for each point in the dataset, and then
+        returning the indices of the points that
+        have an error below the threshold.
+
+        The threshold and error function
+        are configured in the constructor.
 
         :param data: The dataset to find inliers for.
 
@@ -254,8 +409,10 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         """
         rootIndices: List[int] = []
 
+        errorFunction = self.errorFunction(self)
+
         for i in range(len(data.indices)):
-            error: float = self.symetricTransferError(
+            error: float = errorFunction(
                 data.data[i][0], data.data[i][1]
             )
             if error <= self.threshold:
@@ -289,19 +446,231 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
             @ imageOneScalingMat
         )
 
+    def getScore(
+        self, data: RANSACDataset[Tuple[Keypoint, Keypoint]]
+    ) -> float:
+        """
+        Returns the score of the model. How this
+        is computed is configured in the
+        constructor.
+
+        :return: The score of the model.
+        """
+        scoreFunction = self.scoreFunction(self)
+
+        # Now, we can compute the score
+        # of the model
+        return scoreFunction(data.data)
+
+    def getFourMotionHypotheses(
+        self, intrinsics: np.ndarray
+    ) -> List[Tuple[np.ndarray, np.ndarray]]:
+        """
+        Every fundamental matrix, upon conversion
+        to an essential matrix, has four possible
+        motion hypotheses. This function returns
+        those four motion hypotheses. The other function,
+        chose solution, is used to choose which one
+        is correct.
+
+        :param intrinsics: The intrinsics of the camera.
+            Needed to convert the fundamental matrix
+            to an essential matrix.
+
+        :return: The four possible motion hypotheses,
+            as a list of tuples of (rotation, translation).
+            These have shape(3, 3) and shape(3, 1) respectively.
+        """
+        rawEMat = intrinsics.T @ self.matrix @ intrinsics
+
+        # One thing we need to do is to
+        # ensure the E matrix is rank 2;
+        # low rank approximation with the SVD
+        u, s, v = np.linalg.svd(rawEMat)
+        eMatCorrected = u @ np.diag([s[0], s[1], 0]) @ v
+
+        u, d, vt = np.linalg.svd(eMatCorrected)
+
+        # Now, we can compute the four
+        # possible motion hypotheses
+        w = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
+
+        # There are 2 rotations posisble,
+        # so first build those.
+        r1 = u @ w @ vt
+        r2 = u @ w.T @ vt
+
+        # Also, 2 translations are possible,
+        # so build those as well
+        C1 = u[:, 2]
+        C2 = -1 * C1
+
+        # Now, we can build the four
+        # possible motion hypotheses,
+        # correcting for the sign of the
+        # determinant if needed
+        solOne = (
+            (C1, r1) if np.linalg.det(r1) > 0 else (-C1, -r1)
+        )
+        solTwo = (
+            (C2, r1) if np.linalg.det(r1) > 0 else (-C2, -r1)
+        )
+        solThree = (
+            (C1, r2) if np.linalg.det(r2) > 0 else (-C1, -r2)
+        )
+        solFour = (
+            (C2, r2) if np.linalg.det(r2) > 0 else (-C2, -r2)
+        )
+
+        return [solOne, solTwo, solThree, solFour]
+
+    def chooseSolution(
+        self,
+        intrinsics: np.ndarray,
+        motionHypotheses: List[Tuple[np.ndarray, np.ndarray]],
+        pointsOne: List[Keypoint],
+        pointsTwo: List[Keypoint],
+    ) -> Tuple[Camera, int, np.ndarray]:
+        """
+        Chooses the correct motion hypothesis from
+        the four possible ones. This is done by
+        computing by triangulating the points
+        seen in the cameras, and counting
+        the number of points that are in front
+        the camera. The hypothesis with the most
+        points in front of the camera is chosen.
+
+        :param intrinsics: The intrinsics of the camera.
+        :param motionHypotheses: The four possible
+            motion hypotheses.
+        :param pointsOne: The points seen in the first
+            camera.
+        :param pointsTwo: The points seen in the second
+            camera.
+
+        :return: A tuple of (camera matrix, num points visible and triangulated points)
+        """
+        # First, we need to convert the
+        # motion hypotheses into camera
+        # matrices
+        cameraTupleToMatrix = (
+            lambda C, r: intrinsics
+            @ r
+            @ np.hstack((np.eye(3), -1 * C.reshape((3, 1))))
+        )
+        cameraMatrices = [
+            cameraTupleToMatrix(*hypothesis)
+            for hypothesis in motionHypotheses
+        ]
+        cameraObjs = [
+            Camera(intrinsics) for cameraMatrix in cameraMatrices
+        ]
+        for idx, cameraMat in enumerate(cameraMatrices):
+            cameraObjs[idx].extrinsics = motionHypotheses[idx][
+                1
+            ] @ np.hstack(
+                (
+                    np.eye(3),
+                    -1
+                    * motionHypotheses[idx][0].reshape((3, 1)),
+                )
+            )
+            cameraObjs[idx].cameraMat = (
+                cameraObjs[idx].intrinsics
+                @ cameraObjs[idx].extrinsics
+            )
+
+        # Now, triangulate points for each camera, and pick the best one
+        bestModelIdx = -1
+        bestPoints = -1
+        triangulatedPoints : np.ndarray = np.array([])
+
+        # Defines an identity camera that's basically
+        # a camera at the origin; the other camera
+        # is
+        identityCam = Camera(intrinsics)
+
+        for idx, cameraObj in enumerate(cameraObjs):
+            triPoints = triangulatePoints(
+                identityCam, cameraObj, pointsOne, pointsTwo
+            )
+
+            # Convert to a numpy array, since it'll be easier to work with here
+            triPointsNP = np.vstack(triPoints)
+
+            # For the second camera, subtract the camera center, and dot with
+            # the last row of the rotation mat(viewing angle of the cam);
+            # if greater than 0, it's good
+            secondCamDots = (
+                triPointsNP
+                - motionHypotheses[idx][0].reshape(1, -1)
+            ) @ motionHypotheses[idx][1][-1].reshape(3, -1).squeeze()
+
+            # We want to find how many points are IN FRONT
+            # of BOTH cameras
+            firstCamVisible = np.array(triPointsNP[:, -1] > 0, dtype=int)
+
+            secondCamVisible = np.array(
+                secondCamDots > 0, dtype=int
+            )
+
+            # Whether they're visible in both is just elementwise
+            # product of the 2 above
+            visibleInBothCams = (
+                firstCamVisible * secondCamVisible
+            )
+
+            numVisible = int(
+                np.sum(
+                    np.array(visibleInBothCams > 0, dtype=int)
+                )
+            )
+
+            if numVisible > bestPoints or bestModelIdx == -1:
+                bestModelIdx = idx
+                bestPoints = numVisible
+                triangulatedPoints = triPointsNP[visibleInBothCams]
+
+        # Now, just return the best cam, with the number
+        # of visible points
+        return cameraObjs[bestModelIdx], bestPoints, triangulatedPoints
+
 
 class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
-    def __init__(self, threshold: float) -> None:
+    def __init__(
+        self,
+        threshold: float,
+        errorFunction: Callable[
+            ["HomographyMatrix"],
+            Callable[[Keypoint, Keypoint], float],
+        ],
+        scoreFunction: Callable[
+            ["HomographyMatrix"],
+            Callable[[List[Tuple[Keypoint, Keypoint]]], float],
+        ],
+    ) -> None:
         """
         Implements a model for estimating a homography
         matrix from a set of points.
 
         :param threshold: The threshold to use for determining
             whether a point is an inlier or not.
+        :param errorFunction: The error function to use for
+            computing the error of a point.
+        :param scoreFunction: The score function to use for
+            computing the score of the model.
         """
         super().__init__()
         self.matrix: np.ndarray = np.eye(3)
         self.threshold: float = threshold
+        self.errorFunction: Callable[
+            ["HomographyMatrix"],
+            Callable[[Keypoint, Keypoint], float],
+        ] = errorFunction
+        self.scoreFunction: Callable[
+            ["HomographyMatrix"],
+            Callable[[List[Tuple[Keypoint, Keypoint]]], float],
+        ] = scoreFunction
 
     def fit(
         self, data: RANSACDataset[Tuple[Keypoint, Keypoint]]
@@ -367,6 +736,13 @@ class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
                 ]
             )
 
+        # Add one more dimension to constraint
+        # matrix to allow it to work in
+        # a batch
+        constraintMatrix = np.expand_dims(
+            constraintMatrix, axis=0
+        )
+
         # Now, we can get the solution
         # for the homography matrix
         solMat = homogenousMatrixLeastSquares(
@@ -375,58 +751,77 @@ class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
         self.matrix = np.array(solMat)
 
-    def symetricTransferError(
-        self, pointOne: Keypoint, pointTwo: Keypoint
-    ) -> float:
+    @staticmethod
+    def getSymetricTransferErrorPair(
+        hMat: "HomographyMatrix",
+        pointOne: Keypoint,
+        pointTwo: Keypoint,
+    ) -> Tuple[float, float]:
         """
-        Computes the symetric transfer error between
-        two points. This is defined in Zisserman,
-        but basically it's just the sum of
-        differences between the point and the
-        predicted point in the other image.
-
+        :param hMat: The homography matrix to build
+            the error function for.
         :param pointOne: The first point.
         :param pointTwo: The second point.
 
-        :return: The symetric transfer error.
+        :return: A tuple of the transfer error for
+            each point. This is the the distance
+            between point one and the predicted point in
+            image two, and the distance between point two
+            and the predicted point in image one.
         """
-        # Make sure our matrix is
-        # initialized
-        # assert not ((self.matrix == np.eye(3)).all())
-
         # Predict point in each image first.
         predictedPoint_imgTwo: np.ndarray = (
-            self.matrix @ pointOne.asHomogenous()
+            hMat.matrix @ pointOne.asHomogenous()
         )
         predictedPoint_imgOne: np.ndarray = (
-            np.linalg.inv(self.matrix) @ pointTwo.asHomogenous()
+            np.linalg.inv(hMat.matrix) @ pointTwo.asHomogenous()
         )
 
-        # Convert to heterogenous
+        # Convert to heterogenous coordinates
         predictedPoint_imgTwo = (
-            predictedPoint_imgTwo[0:2] / np.hstack((predictedPoint_imgTwo[-1], predictedPoint_imgTwo[-1]))
+            predictedPoint_imgTwo / predictedPoint_imgTwo[2]
         )
         predictedPoint_imgOne = (
-            predictedPoint_imgOne[0:2] / np.hstack((predictedPoint_imgOne[-1], predictedPoint_imgOne[-1]))
+            predictedPoint_imgOne / predictedPoint_imgOne[2]
         )
 
-        # Now, we can compute the transfer
-        # error for each point, which is the
-        # magnitude of the distance between
-        # the given point and the predicted point
-        transferErrorOne: float = float(
-            np.linalg.norm(
-                pointOne.asHeterogenous() - predictedPoint_imgOne
-            ) ** 2
+        # Compute the transfer error
+        transferError_imgOne = np.linalg.norm(
+            pointOne.asHeterogenous() - predictedPoint_imgOne[:2]
+        )
+        transferError_imgTwo = np.linalg.norm(
+            pointTwo.asHeterogenous() - predictedPoint_imgTwo[:2]
         )
 
-        transferErrorTwo: float = float(
-            np.linalg.norm(
-                pointTwo.asHeterogenous() - predictedPoint_imgTwo
-            ) ** 2
+        return float(transferError_imgOne), float(
+            transferError_imgTwo
         )
 
-        return transferErrorOne + transferErrorTwo
+    @staticmethod
+    def symetricTransferError(
+        hMat: "HomographyMatrix",
+    ) -> Callable[[Keypoint, Keypoint], float]:
+        """
+        :param hMat: The homography matrix to build
+            the error function for.
+
+        :return: A calable that computes the transfer
+            error for a point pair. This is the the distance
+            between point one and the predicted point in
+            image two, and the distance between point two
+            and the predicted point in image one.
+        """
+
+        def errorFunction(
+            pointOne: Keypoint, pointTwo: Keypoint
+        ) -> float:
+            return sum(
+                hMat.getSymetricTransferErrorPair(
+                    hMat, pointOne, pointTwo
+                )
+            )
+
+        return errorFunction
 
     def findInlierIndices(
         self,
@@ -434,8 +829,8 @@ class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
     ) -> np.ndarray:
         """
         Finds the indices of the inliers in the dataset.
-        This is done by computing the symetric transfer error
-        for points, and restrict to some threshold.
+        This is done using the threshold and error function
+        specified in the constructor.
 
         :param data: The dataset to find inliers for.
 
@@ -443,8 +838,10 @@ class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         """
         rootIndices: List[int] = []
 
+        errorFunction = self.errorFunction(self)
+
         for i in range(len(data.indices)):
-            error: float = self.symetricTransferError(
+            error: float = errorFunction(
                 data.data[i][0], data.data[i][1]
             )
             if error <= self.threshold:
@@ -476,3 +873,20 @@ class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
             @ self.matrix
             @ imageOneScalingMat
         )
+
+    def getScore(
+        self,
+        data: RANSACDataset[Tuple[Keypoint, Keypoint]],
+    ) -> float:
+        """
+        Computes the score of the model. This is done
+        by computing the error of each point in the dataset
+        and then using the score function specified in the
+        constructor.
+
+        :param data: The dataset to compute the score for.
+
+        :return: The score of the model.
+        """
+
+        return self.scoreFunction(self)(data.data)

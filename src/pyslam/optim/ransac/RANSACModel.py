@@ -38,3 +38,16 @@ class RANSACModel(Generic[T], ABC):
           determined to be inliers.
         """
         pass
+
+    @abstractmethod
+    def getScore(self, data: RANSACDataset[T]) -> float:
+        """
+        Given a RANSACDataset, determines the score of this model
+        against that dataset. The score is used to determine which
+        model is the best model, irrespective of the number of inliers.
+
+        :param data: The dataset we are going to determine the score on.
+
+        :return: Returns the score of this model against the given dataset.
+        """
+        pass

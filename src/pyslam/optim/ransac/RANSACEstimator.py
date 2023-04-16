@@ -21,30 +21,31 @@ from pyslam.optim.ransac import RANSACModel, RANSACDataset
 
 D = TypeVar("D")
 
-def getModelAndInliers(
-        fullDataset: RANSACDataset[D],
-        subset: RANSACDataset[D],
-        model: RANSACModel[D],
-    ) -> Tuple[RANSACModel[D], np.ndarray]:
-        """
-        A helper function that returns a fitted RANSACModel and its predicted inliers in one function.
 
-        :param fullDataset: The full dataset we were given.
-        :param subset: A sub-set of the dataset to fit the model to.
-        :param modelConstructor: A function tha takes no paramaters
-          and returns an instance of the RANSACModel type we are trying to fit.
-          Allows client code to use partial functions to pass in paramaters
-          required by the constructor of the RANASCModel; these could be
-          configuration paramaters, etc.
+def getModelInliersAndScore(
+    fullDataset: RANSACDataset[D],
+    subset: RANSACDataset[D],
+    model: RANSACModel[D],
+) -> Tuple[RANSACModel[D], np.ndarray, float]:
+    """
+    A helper function that returns a fitted RANSACModel, its predicted inliers
+    and the score of the model all in one call.
 
-        :return: Returns a tuple of (estimated model, numpy array of inlier indices)
-        """
-        model.fit(subset)
-        inliers: np.ndarray = model.findInlierIndices(
-            fullDataset
-        )
+    :param fullDataset: The full dataset we were given.
+    :param subset: A sub-set of the dataset to fit the model to.
+    :param modelConstructor: A function tha takes no paramaters
+      and returns an instance of the RANSACModel type we are trying to fit.
+      Allows client code to use partial functions to pass in paramaters
+      required by the constructor of the RANASCModel; these could be
+      configuration paramaters, etc.
 
-        return (model, inliers)
+    :return: Returns a tuple of (estimated model, numpy array of inlier indices, model score)
+    """
+    model.fit(subset)
+    inliers: np.ndarray = model.findInlierIndices(fullDataset)
+    score: float = model.getScore(fullDataset)
+
+    return (model, inliers, score)
 
 
 class RANSACEstimator:
@@ -68,7 +69,7 @@ class RANSACEstimator:
         iterations: int,
         dataPointsPerIteration: int,
         refit: bool,
-    ) -> RANSACModel[D]:
+    ) -> Tuple[RANSACModel[D], np.ndarray, float]:
         """
         Fits a RANSACModel to a given dataset. Runs
         each iteration in parralel, and optionally re-fits the model on
@@ -86,13 +87,15 @@ class RANSACEstimator:
         :param refit: Whether or not to refit the best determined model on its
           inliers.
 
-        :return: Retuns the best determined model.
+        :return: Retuns the best determined model, its inliers and the
+            score of the model as a tuple.
         """
 
-        # 2 variables that keep track of the best model
-        # and set of inliers we've seen so far
+        # 3 variables that keep track of the best model,
+        # set of inliers and score we've seen so far
         bestModel: Optional[RANSACModel[D]] = None
         bestInliers: Optional[np.ndarray] = None
+        bestScore: float = -1.0
 
         # All the futures we get from queueing up calls
         futureObjects: List[Future] = []
@@ -109,22 +112,23 @@ class RANSACEstimator:
             # and add it to the list
             futureObj = loop.run_in_executor(
                 self.__processPool,
-                getModelAndInliers,
-                data, randomSubset, modelConstructor()
+                getModelInliersAndScore,
+                data,
+                randomSubset,
+                modelConstructor(),
             )
 
             futureObjects.append(futureObj)
 
         # Now, wait for all the models to be estimated, and keep the best one
         for future in futureObjects:
-            nextModel, nextInliers = await future
+            nextModel, nextInliers, nextScore = await future
 
-            # Keep this model only if there are more inliers
-            if bestInliers is None or len(bestInliers) < len(
-                nextInliers
-            ):
+            # Keep this model only if score of higher
+            if nextScore > bestScore:
                 bestModel = nextModel
                 bestInliers = nextInliers
+                bestScore = nextScore
 
         # Before doing anything else, make sure our optionals have their values. If not,
         # error out since something went wrong
@@ -143,6 +147,9 @@ class RANSACEstimator:
             )
             modelInstance: RANSACModel[D] = modelConstructor()
             modelInstance.fit(inlierDataset)
-            return modelInstance
-        else:
-            return bestModel
+
+            bestModel = modelInstance
+            bestInliers = modelInstance.findInlierIndices(data)
+            bestScore = modelInstance.getScore(data)
+
+        return (bestModel, bestInliers, bestScore)
