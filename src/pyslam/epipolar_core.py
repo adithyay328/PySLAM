@@ -633,7 +633,7 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
         # Now, just return the best cam, with the number
         # of visible points
-        return cameraObjs[bestModelIdx], bestPoints, triangulatedPoints
+        return cameraObjs[bestModelIdx], bestPoints, triangulatedPoints.reshape(-1, 3)
 
 
 class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
