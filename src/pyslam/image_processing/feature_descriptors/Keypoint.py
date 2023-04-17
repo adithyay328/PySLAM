@@ -89,7 +89,7 @@ class Keypoint:
             return self.__coords.copy()
         else:
             hetCoords: np.ndarray = (
-                self.__coords[0:3] / self.__coords[3]
+                self.__coords[0:2] / self.__coords[-1]
             )
             return hetCoords.copy()
 

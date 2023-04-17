@@ -29,7 +29,7 @@ from pyslam.optim.procedures import homogenousMatrixLeastSquares
 from pyslam.optim.ransac import RANSACModel, RANSACDataset
 
 
-# @jax.jit
+@jax.jit
 def _jaxTriangulatePoints(
     c1: jax.Array,
     c2: jax.Array,
@@ -497,13 +497,13 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
         # There are 2 rotations posisble,
         # so first build those.
-        r1 = u @ w @ vt
-        r2 = u @ w.T @ vt
+        r1 = (u @ w @ vt).T
+        r2 = (u @ w.T @ vt).T
 
         # Also, 2 translations are possible,
         # so build those as well
-        C1 = u[:, 2]
-        C2 = -1 * C1
+        C1 = u[:, 2].T
+        C2 = -1 * C1.T
 
         # Now, we can build the four
         # possible motion hypotheses,
@@ -622,14 +622,14 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
             numVisible = int(
                 np.sum(
-                    np.array(visibleInBothCams > 0, dtype=int)
+                    np.array(visibleInBothCams == 1, dtype=int)
                 )
             )
 
             if numVisible > bestPoints or bestModelIdx == -1:
                 bestModelIdx = idx
                 bestPoints = numVisible
-                triangulatedPoints = triPointsNP[visibleInBothCams]
+                triangulatedPoints = triPointsNP[np.argwhere(visibleInBothCams)]
 
         # Now, just return the best cam, with the number
         # of visible points
