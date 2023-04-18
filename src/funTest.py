@@ -50,14 +50,22 @@ from pyslam.systems.orb_slam import (
     ORB_IsModelGood,
 )
 
-IMAGE_ONE_FNAME = "src/IMG_2846.jpg"
-IMAGE_TWO_FNAME = "src/IMG_2847.jpg"
+CALIB = np.array(
+    [
+        [1297, 0, 1054],
+        [0, 1274, 541.33],
+        [0.0, 0.0, 1.0],
+    ]
+)
+
+IMAGE_ONE_FNAME = "src/Noam1.jpg"
+IMAGE_TWO_FNAME = "src/Noam2.jpg"
 
 
 async def run() -> None:
     # First, get features on both
-    imOne = Image.open(IMAGE_ONE_FNAME).reduce(5).rotate(270)
-    imTwo = Image.open(IMAGE_TWO_FNAME).reduce(5).rotate(270)
+    imOne = Image.open(IMAGE_ONE_FNAME).reduce(2)#.rotate(270)
+    imTwo = Image.open(IMAGE_TWO_FNAME).reduce(2)#.rotate(270)
     # imOne = Image.open(IMAGE_ONE_FNAME).resize((400, 300))
     # imTwo = Image.open(IMAGE_TWO_FNAME).resize((400, 300))
     imOneExtractor = ORB_Detect_And_Compute(600)
@@ -129,17 +137,17 @@ async def run() -> None:
 
     fundamentalTask = asyncio.create_task(
         ransacEstimator.fit(
-            dataset, funMatConstructor, 50, 8, False
+            dataset, funMatConstructor, 70, 7, False
         )
     )
     homographyTask = asyncio.create_task(
         ransacEstimator.fit(
-            dataset, homogMatConstructor, 30, 8, False
+            dataset, homogMatConstructor, 30, 7, False
         )
     )
 
-    funMat, _, funScore = await fundamentalTask
-    homogMat, _, homogScore = await homographyTask
+    funMat, fundamentalInliers, funScore = await fundamentalTask
+    homogMat, homographyInliers, homogScore = await homographyTask
 
     end = datetime.now()
     print(
@@ -150,23 +158,25 @@ async def run() -> None:
     print("Homography Score:", homogScore)
 
     assert type(funMat) == FundamentalMatrix
-    possibleSols = funMat.getFourMotionHypotheses(np.eye(3))
+    possibleSols = funMat.getFourMotionHypotheses(CALIB)
     bestSol, numVisible, points = funMat.chooseSolution(
-        np.eye(3),
+        CALIB,
         possibleSols,
         imOneFeatures.normalizedKeypoints,
         imTwoFeatures.normalizedKeypoints,
+        fundamentalInliers,
+        True
     )
     print(bestSol.cameraMat)
     print(numVisible)
-    print(points)
+    print(points.shape)
 
     imgOut = 0
 
     # Visualize with o3d
-    vector3d = o3d.utility.Vector3dVector(points)
-    pcd = o3d.geometry.PointCloud(vector3d)
-    o3d.visualization.draw_geometries([pcd])
+    # vector3d = o3d.utility.Vector3dVector(points)
+    # pcd = o3d.geometry.PointCloud(vector3d)
+    # o3d.visualization.draw_geometries([pcd])
 
     if ORB_Model_Pick_Homography(
         homogScore, funScore
@@ -208,11 +218,11 @@ async def run() -> None:
     # )
     # # imgOut = drawHomographyHypotheses(model, imOne, imOneFeatures, imTwo, imTwoFeatures, matches)
 
-    assert type(imgOut) == Image.Image
-    cv2.imshow(
-        "Model",
-        cv2.cvtColor(pillowToArray(imgOut), cv2.COLOR_RGB2BGR),
-    )
+    # assert type(imgOut) == Image.Image
+    # cv2.imshow(
+    #     "Model",
+    #     cv2.cvtColor(pillowToArray(imgOut), cv2.COLOR_RGB2BGR),
+    # )
     cv2.waitKey(0)
 
 

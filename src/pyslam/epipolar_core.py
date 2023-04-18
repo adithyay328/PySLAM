@@ -530,6 +530,8 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         motionHypotheses: List[Tuple[np.ndarray, np.ndarray]],
         pointsOne: List[Keypoint],
         pointsTwo: List[Keypoint],
+        inlierIndices: np.ndarray,
+        triangulateAll : bool = False
     ) -> Tuple[Camera, int, np.ndarray]:
         """
         Chooses the correct motion hypothesis from
@@ -585,14 +587,27 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         bestPoints = -1
         triangulatedPoints : np.ndarray = np.array([])
 
+        # To improve performance, only triangulate
+        # 5 or so points, picking from the inliers
+        # of the model
+        inlierIndicesToEsimateOn = np.random.choice(
+            inlierIndices, min(5, len(inlierIndices))
+        )
+        pointsOneToEstimateOn = [
+            pointsOne[idx] for idx in inlierIndicesToEsimateOn
+        ]
+        pointsTwoToEstimateOn = [
+            pointsTwo[idx] for idx in inlierIndicesToEsimateOn
+        ]
+
         # Defines an identity camera that's basically
         # a camera at the origin; the other camera
-        # is
+        # is relative to this one
         identityCam = Camera(intrinsics)
 
         for idx, cameraObj in enumerate(cameraObjs):
             triPoints = triangulatePoints(
-                identityCam, cameraObj, pointsOne, pointsTwo
+                identityCam, cameraObj, pointsOneToEstimateOn, pointsTwoToEstimateOn
             )
 
             # Convert to a numpy array, since it'll be easier to work with here
@@ -630,6 +645,19 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
                 bestModelIdx = idx
                 bestPoints = numVisible
                 triangulatedPoints = triPointsNP[np.argwhere(visibleInBothCams)]
+        
+        # If we want to triangulate on all
+        # inliers, go ahead and do that
+        if triangulateAll:
+            pointsOneToTriangulate = [
+                pointsOne[idx] for idx in inlierIndices
+            ]
+            pointsTwoToTriangulate = [
+                pointsTwo[idx] for idx in inlierIndices
+            ]
+            triangulatedPoints = np.vstack(triangulatePoints(
+                identityCam, cameraObjs[bestModelIdx], pointsOneToTriangulate, pointsTwoToTriangulate
+            ))
 
         # Now, just return the best cam, with the number
         # of visible points

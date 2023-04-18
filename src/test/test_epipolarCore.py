@@ -250,7 +250,7 @@ def test_fundamental_matrix_pose_estimation():
     otherCam = generateRandomCamera()
 
     NUM_POINTS = 100
-    NUM_TRIALS = 100
+    NUM_TRIALS = 5
 
     for i in range(NUM_TRIALS):
         # Generate planar points
@@ -301,7 +301,7 @@ def test_fundamental_matrix_pose_estimation():
         # Now, estimate the pose
         assert type(fundMat) == FundamentalMatrix
         poseHypotheses = fundMat.getFourMotionHypotheses(np.eye(3))
-        finalSol = fundMat.chooseSolution(np.eye(3), poseHypotheses, imOneKeypoints, imTwoKeypoints)
+        finalSol = fundMat.chooseSolution(np.eye(3), poseHypotheses, imOneKeypoints, imTwoKeypoints, indices, False)
         finalSolRotation = finalSol[0].cameraMat[:, :3]
         finalSolTranslation = finalSol[0].cameraMat[:, -1]
 

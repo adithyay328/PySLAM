@@ -37,6 +37,9 @@ addict = "^2.4.0"
 tqdm = "^4.65.0"
 
 
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.22.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
