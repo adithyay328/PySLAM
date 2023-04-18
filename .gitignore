@@ -6,3 +6,9 @@
 
 # Ignore all mypy caches
 **/.mypy_cache/**
+
+# Ignore multi-media files
+src/**.jpg
+src/**.png
+src/**.jpeg
+src/**.webp
