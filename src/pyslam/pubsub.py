@@ -40,6 +40,7 @@ from typing import TypeVar, Generic, Optional
 import queue
 import weakref
 import multiprocessing
+import copy
 
 # Defining 2 types; one used for
 # types decided by the type of
@@ -151,6 +152,6 @@ class Publisher(Generic[OUTGOING_T]):
         and publishes the message
         """
         for msgQueue in self.__messageQueues:
-            msgQueue.publish(message)
+            msgQueue.publish(copy.deepcopy(message))
 
         # At this point we're done; exit.
