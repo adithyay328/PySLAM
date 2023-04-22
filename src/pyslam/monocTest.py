@@ -57,7 +57,7 @@ async def run():
     listener = videoExtractor.subscribe()
 
     # Start video loop
-    videoExtractor.startCaptureLoop(10)
+    videoExtractor.startCaptureLoop(20)
 
     frameWindow.startListenLoop()
 
@@ -65,11 +65,24 @@ async def run():
     imOneExtractor = ORB_Detect_And_Compute(600)
 
     # Keep a sliding window of 2 frames, with feature correpsondences
-    # accross them
+    # accross them; only swap when a good model is determined i.e.
+    # a new keyframe
     firstFrame : Image = None
     secondFrame : Image = None
     firstImageFeatures : Optional[ImageFeatures] = None
     secondImageFeatures : Optional[ImageFeatures] = None
+
+    # Keep track of current position
+    position = np.array([0.0, 0.0, 0.0])
+
+    ransacEstimator: RANSACEstimator = RANSACEstimator(8)
+
+    # Create a lambda to construct a FundamentalMatrix
+    funMatConstructor = lambda: FundamentalMatrix(
+        10,
+        FundamentalMatrix.symetricTransferError,
+        ORB_Fundamental_Scoring_Function,
+    )
 
     # Loop through frames
     while True:
@@ -77,64 +90,44 @@ async def run():
         frame = listener.listen(block=True, timeout=-1)
         if frame is None:
             raise ValueError("Unexpected NoneType from camera")
-
-        # If we don't have a first frame, set it
-        if firstFrame is None:
-            firstFrame = frame.image
-            firstImageFeatures : ImageFeatures[ORB] = ImageFeatures[ORB](
-                firstFrame, imOneExtractor, imOneExtractor
-            )
-            firstImageFeatures.buildNormalizedKeypoints()
-
-            continue
         
-        # If we don't have a second frame, set it
-        if secondFrame is None:
-            secondFrame = frame.image
-            secondImageFeatures : ImageFeatures[ORB] = ImageFeatures[ORB](
-                secondFrame, imOneExtractor, imOneExtractor
-            )
-            secondImageFeatures.buildNormalizedKeypoints()
+        # First, extract features
+        frameFeatures : ImageFeatures[ORB] = ImageFeatures[ORB](
+                frame.image, imOneExtractor, imOneExtractor
+        )
+        frameFeatures.buildNormalizedKeypoints()
 
-            continue
-        
-        # If we have both frames, set the first frame to the second frame
-        # and the second frame to the current frame
-        if firstFrame is not None and secondFrame is not None:
+        # If we haven't yet populated first and second image, just toss this in
+        # there
+        if firstFrame is None or secondFrame is None:
+            # Move second into first
             firstFrame = secondFrame
             firstImageFeatures = secondImageFeatures
 
+            # Update second
             secondFrame = frame.image
-                
-        # If we made it this far, compute features
-        # for the second frame
-        secondImageFeatures : ImageFeatures[ORB] = ImageFeatures[ORB](
-            secondFrame, imOneExtractor, imOneExtractor
-        )
-        secondImageFeatures.buildNormalizedKeypoints()
+            secondImageFeatures = frameFeatures
+
+            # Skip this iteration
+            continue
+        
+        # If we made it this far, the first 2 frames are populated,
+        # and now we can actually do our keyframing
 
         # If we made it this far, we need to compute new
-        # matches, so do that now
-        matches = ImagePairMatches(firstImageFeatures, secondImageFeatures)
+        # matches between the new frame and the first frame,
+        # so do that now
+        matches = ImagePairMatches(secondImageFeatures, frameFeatures)
         matches.computeMatches()
 
-        # Compute posee esimates
+        # Compute pose esimates
         dataset: RANSACDataset[
             Tuple[Keypoint, Keypoint]
         ] = matches.toRANSACDataset(True)
-
-        ransacEstimator: RANSACEstimator = RANSACEstimator(8)
-
-        # Create a lambda to construct both types of matrices
-        funMatConstructor = lambda: FundamentalMatrix(
-            10,
-            FundamentalMatrix.symetricTransferError,
-            ORB_Fundamental_Scoring_Function,
-        )
         
         fundamentalTask = asyncio.create_task(
         ransacEstimator.fit(
-            dataset, funMatConstructor, 70, 7, False
+            dataset, funMatConstructor, 30, 7, True
         )
         )
 
@@ -145,27 +138,39 @@ async def run():
         assert(type(funMat) == FundamentalMatrix)
         possibleSols = funMat.getFourMotionHypotheses(CALIB)
 
-        bestSol, numVisible, points = funMat.chooseSolution(
+        bestSol, numVisible, points, goodSol = funMat.chooseSolution(
             CALIB,
             possibleSols,
             firstImageFeatures.normalizedKeypoints,
             secondImageFeatures.normalizedKeypoints,
             fundamentalInliers,
         False)
-        
-        
-        print(bestSol.cameraMat)
 
-        
         # If we have both frames, compute the matches
         # and draw them; visualize those matches
         # on the frame window
         stereoMatchFrame : Image = drawStereoMatches(
-            firstFrame, secondFrame, firstImageFeatures, secondImageFeatures, matches
+            secondFrame, frame.image, secondImageFeatures, frameFeatures, matches
         )
             
         # Publish to the frame window
         pub.publish(stereoMatchFrame)
+
+        # If good sol is false, ignore it
+        if not goodSol:
+            continue
+        
+        # Otherwise, add to current position, and update frames
+
+        # Add to position, and print
+        position += bestSol.cameraMat[0:3, 3]
+        print(position)
+        
+        firstFrame = secondFrame
+        firstImageFeatures = secondImageFeatures
+
+        secondFrame = frame.image
+        secondImageFeatures = frameFeatures
                    
 
 if __name__ == "__main__":

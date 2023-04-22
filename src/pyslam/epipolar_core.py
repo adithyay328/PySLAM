@@ -524,6 +524,8 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
         return [solOne, solTwo, solThree, solFour]
 
+    # TODO: Really clean up the way this API is designed.
+    # Ugly as hell right now
     def chooseSolution(
         self,
         intrinsics: np.ndarray,
@@ -532,7 +534,7 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         pointsTwo: List[Keypoint],
         inlierIndices: np.ndarray,
         triangulateAll : bool = False
-    ) -> Tuple[Camera, int, np.ndarray]:
+    ) -> Tuple[Camera, int, np.ndarray, bool]:
         """
         Chooses the correct motion hypothesis from
         the four possible ones. This is done by
@@ -540,7 +542,11 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         seen in the cameras, and counting
         the number of points that are in front
         the camera. The hypothesis with the most
-        points in front of the camera is chosen.
+        points in front of the camera is chosen,
+        alongisde a boolean flag indicating
+        whether or not the solution is likely.
+        This is done by checking if the number
+        of points 
 
         :param intrinsics: The intrinsics of the camera.
         :param motionHypotheses: The four possible
@@ -550,7 +556,8 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
         :param pointsTwo: The points seen in the second
             camera.
 
-        :return: A tuple of (camera matrix, num points visible and triangulated points)
+        :return: A tuple of (camera matrix, num points visible, triangulated points,
+            and whether or not the solution is likely to be good)
         """
         # First, we need to convert the
         # motion hypotheses into camera
@@ -582,16 +589,23 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
                 @ cameraObjs[idx].extrinsics
             )
 
-        # Now, triangulate points for each camera, and pick the best one
-        bestModelIdx = -1
-        bestPoints = -1
+        # Store all counts of point inliers in here;
+        # allows us to look at the distribution, which
+        # is more useful than just a point estimate,
+        # since then we can do tests to ensure one prominent
+        # solution is available
+        inlierCounts : List[int] = []
+
+        # Stores the num of triangulate points for
+        # the best model
         triangulatedPoints : np.ndarray = np.array([])
 
         # To improve performance, only triangulate
         # 5 or so points, picking from the inliers
         # of the model
+        NUM_POINTS_FOR_CHERIALITY = 7
         inlierIndicesToEsimateOn = np.random.choice(
-            inlierIndices, min(5, len(inlierIndices))
+            inlierIndices, min(NUM_POINTS_FOR_CHERIALITY, len(inlierIndices))
         )
         pointsOneToEstimateOn = [
             pointsOne[idx] for idx in inlierIndicesToEsimateOn
@@ -641,10 +655,31 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
                 )
             )
 
-            if numVisible > bestPoints or bestModelIdx == -1:
-                bestModelIdx = idx
-                bestPoints = numVisible
+            inlierCounts.append(numVisible)
+            
+            # If this is the best model so far,
+            # save its triangulated points
+            if len(inlierCounts) < 2 or inlierCounts[-1] > max( inlierCounts[:len(inlierCounts) - 1] ):
                 triangulatedPoints = triPointsNP[np.argwhere(visibleInBothCams)]
+        
+        # Test if the best model is distinguishable
+        # enough from other models; if yes, return
+        # that this is a good solution
+        isGoodModel = True
+
+        # There are a couple conditions that determine if
+        # a model is "good"
+        # 1. The best model needs to have more than
+        # NUM_POINTS_FOR_CHERIALITY * 0.75 inliers
+        # 2. The best model needs to beat the all other models
+        # by a factor 2 at the minimum
+        # If these are both satisfied, it's a good model
+        sortedInlierCounts = np.array( sorted(inlierCounts) )
+        isGoodModel = isGoodModel and sortedInlierCounts[-1] >= 2 * sortedInlierCounts[-2]
+        isGoodModel = isGoodModel and sortedInlierCounts[-1] >= NUM_POINTS_FOR_CHERIALITY * .75
+
+        # Get the best model idx
+        bestModelIdx = np.argmax(inlierCounts)
         
         # If we want to triangulate on all
         # inliers, go ahead and do that
@@ -661,7 +696,7 @@ class FundamentalMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
 
         # Now, just return the best cam, with the number
         # of visible points
-        return cameraObjs[bestModelIdx], bestPoints, triangulatedPoints.reshape(-1, 3)
+        return cameraObjs[bestModelIdx], max(inlierCounts), triangulatedPoints.reshape(-1, 3), isGoodModel
 
 
 class HomographyMatrix(RANSACModel[Tuple[Keypoint, Keypoint]]):
