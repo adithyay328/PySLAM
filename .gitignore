@@ -12,3 +12,5 @@ src/**.jpg
 src/**.png
 src/**.jpeg
 src/**.webp
+src/**.hevc
+src/**.mp4
